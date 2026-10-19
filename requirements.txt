@@ -1,0 +1,6 @@
+Flask
+Flask-Login
+Flask-WTF
+PyMySQL
+cryptography
+python-dotenv

@@ -123,6 +123,7 @@ car-rental/
 │   ├── config.py              # constants: late fee multiplier, tier discounts          (B1)
 │   ├── db.py                  # connection helpers: query(), execute(), get_db()        (B1)
 │   ├── auth.py                # User class, login manager, role_required                (B1)
+│   ├── forms.py               # Flask-WTF forms (RentForm, ReturnForm, ...)             (B1)
 │   ├── services/
 │   │   ├── rules.py           # shared rule checks (availability, driver free, etc.)
 │   │   └── pricing.py         # total cost and late fee calculations
@@ -192,7 +193,7 @@ cp .env.example .env              # then edit .env (see below)
 
 # 5. Create the database
 mysql -u root -p < schema.sql
-mysql -u root -p car_rental_system < seed.sql
+mysql -u root -p car_rental < seed.sql
 
 # 6. Create login accounts (hashed passwords)
 python seed_users.py
@@ -211,14 +212,14 @@ DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_USER=rental_dev
 DB_PASSWORD=your_password
-DB_NAME=car_rental_system
+DB_NAME=car_rental
 ```
 
 **Create the MySQL user** (inside the `mysql` shell):
 
 ```sql
 CREATE USER 'rental_dev'@'localhost' IDENTIFIED BY 'your_password';
-GRANT ALL PRIVILEGES ON car_rental_system.* TO 'rental_dev'@'localhost';
+GRANT ALL PRIVILEGES ON car_rental.* TO 'rental_dev'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
@@ -291,8 +292,8 @@ Nine tables. The full script lives in `schema.sql` (B2 owns it, and it is frozen
 ### schema.sql
 
 ```sql
-CREATE DATABASE IF NOT EXISTS car_rental_system;
-USE car_rental_system;
+CREATE DATABASE IF NOT EXISTS car_rental;
+USE car_rental;
 
 CREATE TABLE VEHICLE (
     Vehicle_ID    INT PRIMARY KEY AUTO_INCREMENT,
@@ -823,7 +824,7 @@ The add and edit pages share one template each, so the 32 pages come from 34 rou
 
 ## 11. API_CONTRACT.md
 
-A plain text file listing, for every page, what the backend and frontend have promised each other. It exists because frontend people build pages before the backend does. If they guess a variable like `car.name` and the backend sends `vehicle.make`, nothing shows and everyone argues. The contract fixes the names in advance.
+A plain text file listing, for every page, what the backend and frontend have promised each other. It exists because frontend people build pages before the backend does. If they guess a variable like `car.name` and the backend sends `vehicle.Make`, nothing shows and everyone argues. The contract fixes the names in advance.
 
 **B1 writes it in the first two days.**
 
@@ -833,9 +834,9 @@ Each entry has the same shape:
 ### Process return
 Route:        GET /agent/rentals/<id>/return
 Who can open: Rental Agent
-Page gets:    rental.id, rental.start_date, rental.due_date,
-              vehicle.make, vehicle.model, vehicle.daily_rate,
-              customer.first_name, customer.last_name,
+Page gets:    rental.Rental_ID, rental.Rental_Date, rental.Due_Date,
+              vehicle.Make, vehicle.Model, vehicle.Daily_Rate,
+              customer.First_Name, customer.Last_Name,
               today, days_late, late_fee, amount_due
 Form sends:   POST /agent/rentals/<id>/return
               return_date
