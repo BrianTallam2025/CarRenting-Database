@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Insurance | Fleet</title>
+  <!-- F1's shared styles. Missing until main.css is pushed. -->
+  <link rel="stylesheet" href="../../static/css/main.css">
+  <link rel="stylesheet" href="../../static/css/components/fleet.css">
+</head>
+<body>
+  <!-- Temporary header and menu so the pages can be opened on their own.
+       Delete this block and use {% extends "shared/base.html" %} once F1 ships base.html. -->
+  <header class="fleet-temp-header">
+    <strong>Car Rental</strong>
+    <nav aria-label="Fleet">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="vehicles.html">Cars</a>
+      <a href="insurance.html" class="current">Insurance</a>
+      <a href="maintenance.html">Maintenance</a>
+      <a href="drivers.html">Drivers</a>
+    </nav>
+  </header>
+
+  <main class="fleet-page">
+    <h1>Insurance</h1>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Plate</th><th>Car</th><th>Provider</th><th>Expires</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <!-- {% for p in policies %}
+            status badge: status-valid, status-expiring or status-expired
+            {% endfor %} -->
+            <tr class="empty-row"><td colspan="5">No policies recorded yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <form class="card form-layout" action="/fleet/insurance" method="post">
+      <h2>Add or renew a policy</h2>
+      <!-- Each car has one policy, so saving for a car that already has one renews it. -->
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="form-field">
+        <label for="vehicle">Car</label>
+        <select id="vehicle" name="vehicle_id" required>
+          <option value="">Choose a car</option>
+          <!-- {% for v in vehicles %}<option value="{{ v.vehicle_id }}">{{ v.plate_number }}, {{ v.make }} {{ v.model }}</option>{% endfor %} -->
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label for="provider">Provider</label>
+        <input id="provider" name="provider" required>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label for="start">Start date</label>
+          <input id="start" type="date" name="start_date" required>
+        </div>
+        <div class="form-field">
+          <label for="expiry">Expiry date</label>
+          <input id="expiry" type="date" name="expiry_date" required>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn" type="submit">Save policy</button>
+      </div>
+    </form>
+  </main>
+</body>
+</html>
