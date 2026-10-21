@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Drivers | Fleet</title>
+  <!-- F1's shared styles. Missing until main.css is pushed. -->
+  <link rel="stylesheet" href="../../static/css/main.css">
+  <link rel="stylesheet" href="../../static/css/components/fleet.css">
+</head>
+<body>
+  <!-- Temporary header and menu so the pages can be opened on their own.
+       Delete this block and use {% extends "shared/base.html" %} once F1 ships base.html. -->
+  <header class="fleet-temp-header">
+    <strong>Car Rental</strong>
+    <nav aria-label="Fleet">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="vehicles.html">Cars</a>
+      <a href="insurance.html">Insurance</a>
+      <a href="maintenance.html">Maintenance</a>
+      <a href="drivers.html" class="current">Drivers</a>
+    </nav>
+  </header>
+
+  <main class="fleet-page">
+    <div class="page-top">
+      <h1>Drivers</h1>
+      <a class="btn" href="driver_form.html">Add driver</a>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Name</th><th>License number</th><th>Availability</th><th></th></tr>
+          </thead>
+          <tbody>
+            <!-- {% for d in drivers %}
+            status badge: status-available or status-assigned
+            edit link: /fleet/drivers/{{ d.driver_id }}/edit
+            {% endfor %} -->
+            <tr class="empty-row"><td colspan="4">No drivers yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

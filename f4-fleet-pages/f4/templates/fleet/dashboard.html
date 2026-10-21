@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fleet dashboard | Fleet</title>
+  <!-- F1's shared styles. Missing until main.css is pushed. -->
+  <link rel="stylesheet" href="../../static/css/main.css">
+  <link rel="stylesheet" href="../../static/css/components/fleet.css">
+</head>
+<body>
+  <!-- Temporary header and menu so the pages can be opened on their own.
+       Delete this block and use {% extends "shared/base.html" %} once F1 ships base.html. -->
+  <header class="fleet-temp-header">
+    <strong>Car Rental</strong>
+    <nav aria-label="Fleet">
+      <a href="dashboard.html" class="current">Dashboard</a>
+      <a href="vehicles.html">Cars</a>
+      <a href="insurance.html">Insurance</a>
+      <a href="maintenance.html">Maintenance</a>
+      <a href="drivers.html">Drivers</a>
+    </nav>
+  </header>
+
+  <main class="fleet-page">
+    <h1>Fleet dashboard</h1>
+
+    <section class="card">
+      <h2>Cars by status</h2>
+      <ul class="stat-list">
+        <li><span class="stat-number">-</span> Available</li>
+        <li><span class="stat-number">-</span> Rented</li>
+        <li><span class="stat-number">-</span> In maintenance</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Insurance expiring soon</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Plate</th><th>Car</th><th>Expires</th></tr>
+          </thead>
+          <tbody>
+            <!-- {% for p in expiring_policies %} one row each {% endfor %} -->
+            <tr class="empty-row"><td colspan="3">No policies expiring soon.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><a href="insurance.html">See all policies</a></p>
+    </section>
+  </main>
+</body>
+</html>

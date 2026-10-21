@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Add or edit driver | Fleet</title>
+  <!-- F1's shared styles. Missing until main.css is pushed. -->
+  <link rel="stylesheet" href="../../static/css/main.css">
+  <link rel="stylesheet" href="../../static/css/components/fleet.css">
+</head>
+<body>
+  <!-- Temporary header and menu so the pages can be opened on their own.
+       Delete this block and use {% extends "shared/base.html" %} once F1 ships base.html. -->
+  <header class="fleet-temp-header">
+    <strong>Car Rental</strong>
+    <nav aria-label="Fleet">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="vehicles.html">Cars</a>
+      <a href="insurance.html">Insurance</a>
+      <a href="maintenance.html">Maintenance</a>
+      <a href="drivers.html" class="current">Drivers</a>
+    </nav>
+  </header>
+
+  <main class="fleet-page">
+    <h1>Add driver</h1>
+    <!-- One page for both. When editing, change the heading to "Edit driver" and fill the values. -->
+
+    <form class="card form-layout" action="/fleet/drivers/new" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="form-field">
+        <label for="name">Name</label>
+        <input id="name" name="name" required>
+      </div>
+
+      <div class="form-field">
+        <label for="license">License number</label>
+        <input id="license" name="license_number" required>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn" type="submit">Save driver</button>
+        <a href="drivers.html">Cancel</a>
+      </div>
+    </form>
+  </main>
+</body>
+</html>

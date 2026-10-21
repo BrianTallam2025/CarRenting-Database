@@ -1,0 +1,62 @@
+/* Fleet manager pages (F4): status badge and form layout.
+   main.css belongs to F1, so nothing here edits it. */
+
+/* status badge */
+.status-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.status-available,
+.status-valid     { background: #dcf0e3; color: #1d5c36; }
+.status-rented,
+.status-assigned  { background: #dbe8f5; color: #1c4a78; }
+.status-maintenance,
+.status-expiring  { background: #fbeccb; color: #7a5200; }
+.status-expired   { background: #f6d9d4; color: #8a2a1b; }
+
+/* form layout */
+.form-layout { max-width: 36rem; }
+.form-field { margin-bottom: 1rem; }
+.form-field label { display: block; margin-bottom: 0.25rem; font-weight: 600; }
+.form-field input,
+.form-field select,
+.form-field textarea {
+  width: 100%;
+  padding: 0.5rem;
+  font: inherit;
+  border: 1px solid #999;
+  border-radius: 4px;
+}
+.form-field textarea { min-height: 5rem; resize: vertical; }
+.form-row { display: flex; gap: 1rem; }
+.form-row .form-field { flex: 1; }
+.form-actions { display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem; }
+
+/* page bits used only on the fleet pages */
+.fleet-page { max-width: 64rem; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+.page-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.table-wrap { overflow-x: auto; }
+.stat-list { list-style: none; margin: 0; padding: 0; display: flex; gap: 2rem; flex-wrap: wrap; }
+.stat-number { font-size: 1.6rem; font-weight: 700; margin-right: 0.3rem; }
+.empty-row td { text-align: center; color: #666; padding: 1.25rem; }
+
+@media (max-width: 600px) {
+  .form-row { flex-direction: column; gap: 0; }
+}
+
+/* Temporary fallback so the pages look reasonable before F1's main.css exists.
+   Delete everything below this line once main.css is in main. */
+body { margin: 0; font-family: Arial, sans-serif; color: #222; background: #f5f5f5; line-height: 1.45; }
+.fleet-temp-header { display: flex; gap: 2rem; align-items: center; padding: 0.75rem 1.5rem; background: #222; color: #fff; }
+.fleet-temp-header nav { display: flex; gap: 1rem; flex-wrap: wrap; }
+.fleet-temp-header a { color: #ddd; text-decoration: none; }
+.fleet-temp-header a.current { color: #fff; border-bottom: 2px solid #fff; }
+.card { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 1.25rem; margin-bottom: 1.25rem; }
+.btn { display: inline-block; padding: 0.5rem 1rem; background: #1e5f8c; color: #fff; border: 0; border-radius: 4px; font: inherit; text-decoration: none; cursor: pointer; }
+.btn:hover { background: #164a6d; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 0.55rem 0.7rem; border-bottom: 1px solid #e3e3e3; }
+th { background: #f0f0f0; }
