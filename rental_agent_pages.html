@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DriveDesk | Rental Agent Portal</title>
+<style>
+:root{--navy:#14243a;--blue:#2563eb;--sky:#eaf2ff;--bg:#f4f7fb;--text:#1f2937;--muted:#64748b;--line:#dce4ef;--green:#16845b;--amber:#b45309;--red:#b91c1c;--white:#fff}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+header{background:var(--navy);color:#fff;padding:15px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-size:21px;font-weight:800;letter-spacing:.3px}.brand span{color:#93c5fd}
+.user{font-size:13px;color:#dbeafe}.layout{display:grid;grid-template-columns:230px minmax(0,1fr);min-height:calc(100vh - 60px)}
+aside{background:#fff;border-right:1px solid var(--line);padding:18px 12px}
+.nav-label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;padding:12px 12px 7px;letter-spacing:1px}
+nav button{display:block;width:100%;text-align:left;border:0;background:transparent;padding:11px 12px;border-radius:8px;margin:2px 0;color:#334155;font-size:14px;cursor:pointer}
+nav button:hover,nav button.active{background:var(--sky);color:var(--blue);font-weight:700}
+main{padding:26px;max-width:1500px;width:100%;margin:auto}.page{display:none}.page.active{display:block}
+h1{font-size:26px;margin:0 0 7px;color:#172b4d}h2{font-size:17px;margin:0 0 15px}p.sub{color:var(--muted);margin:0 0 22px;font-size:14px}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:22px}
+.card,.panel{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px;box-shadow:0 2px 5px #172b4d08}
+.metric{font-size:27px;font-weight:800;margin:8px 0}.metric-label{font-size:13px;color:var(--muted)}.metric-icon{font-size:20px}
+.panel{margin-bottom:18px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}.toolbar input,.toolbar select{min-width:170px}
+input,select,textarea{width:100%;padding:10px 11px;border:1px solid #cbd5e1;border-radius:7px;background:#fff;color:var(--text);font-size:14px}
+label{font-size:13px;font-weight:700;color:#475569;display:block;margin-bottom:6px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.field{margin-bottom:2px}.field.full{grid-column:1/-1}
+button.primary,button.secondary,button.danger,button.small{border:0;border-radius:7px;padding:10px 14px;cursor:pointer;font-weight:700;font-size:13px}
+button.primary{background:var(--blue);color:#fff}button.primary:hover{background:#1d4ed8}button.secondary{background:#e8eef7;color:#24364b}button.danger{background:#fee2e2;color:#991b1b}button.small{padding:7px 10px;background:#e8eef7;color:#24364b}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid #e7edf4;vertical-align:middle}th{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#64748b;background:#f8fafc}tr:last-child td{border-bottom:0}
+.table-wrap{overflow-x:auto}.pill{display:inline-block;padding:4px 8px;border-radius:30px;font-size:11px;font-weight:700;background:#e2e8f0;color:#334155}.pill.available,.pill.returned,.pill.completed{background:#dcfce7;color:#166534}.pill.rented,.pill.active{background:#dbeafe;color:#1d4ed8}.pill.overdue,.pill.manager{background:#fee2e2;color:#991b1b}.pill.pending{background:#fef3c7;color:#92400e}
+.notice{padding:12px 14px;border-radius:8px;background:#eff6ff;color:#1e40af;font-size:13px;margin-bottom:15px}.warning{background:#fff7ed;color:#9a3412}.totals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}.total-box{padding:14px;border-radius:9px;background:#f8fafc;border:1px solid var(--line)}.total-box span{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}.total-box strong{font-size:20px}
+.empty{padding:25px;text-align:center;color:var(--muted)}.muted{color:var(--muted)}.hidden{display:none!important}.actions{display:flex;gap:6px;flex-wrap:wrap}
+footer{text-align:center;color:#94a3b8;font-size:12px;padding:18px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}aside{border-right:0;border-bottom:1px solid var(--line);padding:8px}nav{display:flex;overflow-x:auto;gap:4px}nav button{white-space:nowrap;width:auto}.nav-label{display:none}main{padding:16px}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.cards,.form-grid,.totals{grid-template-columns:1fr}header{padding:14px}.toolbar{width:100%}.toolbar input,.toolbar select{min-width:100%}h1{font-size:22px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Drive<span>Desk</span> <span style="color:#cbd5e1;font-weight:400;font-size:13px">| Rental Operations</span></div>
+  <div class="user">Signed in as <strong id="signedInName">Rental Agent</strong> · <span id="roleLabel">Agent</span>
+    <select id="roleSwitcher" aria-label="Demo role" style="width:auto;margin-left:8px;padding:6px" onchange="switchRole(this.value)">
+      <option value="agent">Agent view</option><option value="manager">Manager view</option>
+    </select>
+  </div>
+</header>
+<div class="layout">
+<aside>
+  <div class="nav-label">Operations</div>
+  <nav id="navigation">
+    <button class="active" data-page="dashboard">▦ Dashboard</button>
+    <button data-page="rentals">▤ All rentals / Search</button>
+    <button data-page="rental-details">▣ Rental details</button>
+    <button data-page="walkin">＋ Walk-in rental</button>
+    <button data-page="return">↩ Process return</button>
+    <button data-page="drivers">♙ Assign driver</button>
+    <button data-page="customers">⌕ Customer lookup</button>
+    <div class="nav-label">Manager only</div>
+    <button class="manager-link" data-page="changes">⚙ Change car or driver</button>
+    <button class="manager-link" data-page="history">◷ Change history</button>
+  </nav>
+</aside>
+<main>
+<section class="page active" id="dashboard">
+  <h1>Agent dashboard</h1><p class="sub">A quick view of today's rental desk activity.</p>
+  <div class="cards">
+    <div class="card"><div class="metric-icon">🚗</div><div class="metric" id="metricActive">0</div><div class="metric-label">Active rentals</div></div>
+    <div class="card"><div class="metric-icon">↩</div><div class="metric" id="metricReturns">0</div><div class="metric-label">Returns due today</div></div>
+    <div class="card"><div class="metric-icon">⚠</div><div class="metric" id="metricOverdue">0</div><div class="metric-label">Overdue rentals</div></div>
+    <div class="card"><div class="metric-icon">✓</div><div class="metric" id="metricCars">0</div><div class="metric-label">Cars available</div></div>
+  </div>
+  <div class="panel"><div class="panel-head"><h2>Rentals requiring attention</h2><button class="secondary" onclick="showPage('rentals')">View all rentals</button></div>
+    <div class="table-wrap"><table><thead><tr><th>Rental</th><th>Customer</th><th>Vehicle</th><th>Due date</th><th>Status</th><th></th></tr></thead><tbody id="dashboardRows"></tbody></table></div>
+  </div>
+  <div class="notice">Demo note: this prototype stores changes in this browser session only. Connect the forms to your server/API and database before using real customer information.</div>
+</section>
+
+<section class="page" id="rentals">
+  <h1>All rentals</h1><p class="sub">Search and open a rental record.</p>
+  <div class="panel"><div class="panel-head"><h2>Find a rental</h2><div class="toolbar"><input id="rentalSearch" placeholder="Rental ID, customer, plate…" oninput="renderRentals()"><select id="rentalStatus" onchange="renderRentals()"><option value="">All statuses</option><option>Active</option><option>Overdue</option><option>Returned</option></select></div></div>
+  <div class="table-wrap"><table><thead><tr><th>Rental ID</th><th>Customer</th><th>Vehicle</th><th>Start</th><th>Due</th><th>Status</th><th>Amount</th><th>Action</th></tr></thead><tbody id="rentalRows"></tbody></table></div></div>
+</section>
+
+<section class="page" id="rental-details">
+  <h1>Rental details</h1><p class="sub">View dates, customer, vehicle, assigned driver and charges.</p>
+  <div class="panel"><div class="form-grid"><div class="field full"><label for="detailRentalSelect">Select rental</label><select id="detailRentalSelect" onchange="renderDetails()"></select></div></div><div id="detailsContent"></div></div>
+</section>
+
+<section class="page" id="walkin">
+  <h1>Walk-in rental</h1><p class="sub">Register a customer and create a new rental at the desk.</p>
+  <div class="notice">A vehicle must be available. The example calculates an estimated rental charge from daily rate × rental days.</div>
+  <form class="panel" id="walkinForm"><h2>Customer and rental information</h2><div class="form-grid">
+    <div class="field"><label for="walkName">Customer full name *</label><input id="walkName" required></div>
+    <div class="field"><label for="walkPhone">Phone number *</label><input id="walkPhone" required></div>
+    <div class="field"><label for="walkLicense">Driving licence number *</label><input id="walkLicense" required></div>
+    <div class="field"><label for="walkCar">Available vehicle *</label><select id="walkCar" required></select></div>
+    <div class="field"><label for="walkStart">Rental start date *</label><input id="walkStart" type="date" required></div>
+    <div class="field"><label for="walkDue">Expected return date *</label><input id="walkDue" type="date" required></div>
+    <div class="field"><label for="walkDriver">Driver (optional)</label><select id="walkDriver"><option value="">No driver assigned</option></select></div>
+    <div class="field"><label for="walkNotes">Notes</label><input id="walkNotes" placeholder="Optional notes"></div>
+  </div><div style="margin-top:18px" class="actions"><button class="primary" type="submit">Create rental</button><button class="secondary" type="reset">Clear form</button></div></form>
+</section>
+
+<section class="page" id="return">
+  <h1>Process vehicle return</h1><p class="sub">Record a return and calculate overdue days, late fee and total amount.</p>
+  <div class="panel"><div class="form-grid"><div class="field full"><label for="returnRental">Active rental *</label><select id="returnRental" onchange="calculateReturn()"></select></div>
+    <div class="field"><label for="actualReturn">Actual return date *</label><input type="date" id="actualReturn" onchange="calculateReturn()"></div>
+    <div class="field"><label for="lateRate">Late fee per day (KSh) *</label><input type="number" id="lateRate" min="0" value="1500" onchange="calculateReturn()"></div>
+  </div>
+  <div class="totals"><div class="total-box"><span>Days late</span><strong id="daysLate">0</strong></div><div class="total-box"><span>Late fee</span><strong id="lateFee">KSh 0</strong></div><div class="total-box"><span>Total due</span><strong id="returnTotal">KSh 0</strong></div></div>
+  <div class="notice warning">This demo uses calendar days and a simple daily-rate calculation. Confirm your team's policy for partial days, deposits, damage charges and taxes.</div>
+  <button class="primary" onclick="processReturn()">Confirm return</button>
+  <div id="returnMessage" style="margin-top:12px"></div></div>
+</section>
+
+<section class="page" id="drivers">
+  <h1>Assign driver</h1><p class="sub">Assign an available driver to an active rental.</p>
+  <form class="panel" id="driverForm"><div class="form-grid"><div class="field"><label for="driverRental">Active rental *</label><select id="driverRental" required></select></div><div class="field"><label for="driverChoice">Driver *</label><select id="driverChoice" required></select></div></div><div style="margin-top:16px"><button class="primary">Save driver assignment</button></div></form>
+  <div class="panel"><h2>Driver list</h2><div class="table-wrap"><table><thead><tr><th>Driver ID</th><th>Name</th><th>Phone</th><th>Licence</th><th>Status</th></tr></thead><tbody id="driverRows"></tbody></table></div></div>
+</section>
+
+<section class="page" id="customers">
+  <h1>Customer lookup</h1><p class="sub">Search customers by name, phone number or driving licence.</p>
+  <div class="panel"><div class="panel-head"><h2>Search customers</h2><div class="toolbar"><input id="customerSearch" placeholder="Name, phone or licence…" oninput="renderCustomers()"></div></div><div class="table-wrap"><table><thead><tr><th>Customer ID</th><th>Full name</th><th>Phone</th><th>Licence</th><th>Rentals</th><th>Action</th></tr></thead><tbody id="customerRows"></tbody></table></div></div>
+  <div id="customerResult"></div>
+</section>
+
+<section class="page" id="changes">
+  <h1>Change car or driver</h1><p class="sub">Manager-only page for controlled changes to an active rental.</p>
+  <div class="notice warning">Manager access is demonstrated with a role switcher only. In production, enforce authorization on the server and database—not just by hiding this page.</div>
+  <form class="panel" id="changeForm"><div class="form-grid"><div class="field full"><label for="changeRental">Active rental *</label><select id="changeRental" required onchange="renderChangeForm()"></select></div><div class="field"><label for="changeCar">Replacement vehicle</label><select id="changeCar"><option value="">Keep current vehicle</option></select></div><div class="field"><label for="changeDriver">Replacement driver</label><select id="changeDriver"><option value="">Keep current driver</option></select></div><div class="field full"><label for="changeReason">Reason for change *</label><textarea id="changeReason" required rows="3" placeholder="Explain why this change is needed"></textarea></div></div><div style="margin-top:16px"><button class="primary">Save change and log history</button></div></form>
+</section>
+
+<section class="page" id="history">
+  <h1>Change history</h1><p class="sub">Audit trail of vehicle and driver changes recorded by a manager.</p>
+  <div class="panel"><div class="panel-head"><h2>Recorded changes</h2><button class="secondary" onclick="renderHistory()">Refresh</button></div><div class="table-wrap"><table><thead><tr><th>Time</th><th>Rental</th><th>Change</th><th>Previous value</th><th>New value</th><th>Reason</th><th>Changed by</th></tr></thead><tbody id="historyRows"></tbody></table></div></div>
+</section>
+<footer>DriveDesk Rental Operations · Academic prototype</footer>
+</main>
+</div>
+<script>
+const money = n => 'KSh ' + Number(n || 0).toLocaleString('en-KE',{maximumFractionDigits:2});
+const today = new Date(); today.setHours(0,0,0,0);
+const iso = d => { const x=new Date(d); return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`; };
+const addDays = (s,n) => {const d=new Date(s+'T00:00:00');d.setDate(d.getDate()+n);return iso(d)};
+let cars=[
+{id:'V001',plate:'KDA 123A',model:'Toyota Axio',rate:4500,status:'Rented'},
+{id:'V002',plate:'KDB 456B',model:'Toyota Fielder',rate:5000,status:'Available'},
+{id:'V003',plate:'KDC 789C',model:'Nissan Note',rate:3500,status:'Rented'},
+{id:'V004',plate:'KDD 321D',model:'Subaru Forester',rate:7500,status:'Available'},
+{id:'V005',plate:'KDE 654E',model:'Toyota Hiace',rate:9000,status:'Available'}
+];
+let drivers=[
+{id:'D001',name:'Peter Mwangi',phone:'0712 000 111',licence:'DL-001',status:'Available'},
+{id:'D002',name:'Mary Wanjiku',phone:'0722 000 222',licence:'DL-002',status:'Available'},
+{id:'D003',name:'Daniel Otieno',phone:'0733 000 333',licence:'DL-003',status:'Available'}
+];
+let customers=[
+{id:'C001',name:'Amina Hassan',phone:'0711 111 111',licence:'DL-A101'},
+{id:'C002',name:'Brian Kiptoo',phone:'0722 222 222',licence:'DL-B202'},
+{id:'C003',name:'Grace Njeri',phone:'0733 333 333',licence:'DL-G303'}
+];
+let rentals=[
+{id:'R1001',customerId:'C001',carId:'V001',driverId:'D001',start:addDays(iso(today),-3),due:addDays(iso(today),-1),actualReturn:null,status:'Overdue',notes:'Sample rental',baseAmount:9000},
+{id:'R1002',customerId:'C002',carId:'V003',driverId:null,start:iso(today),due:addDays(iso(today),2),actualReturn:null,status:'Active',notes:'Sample rental',baseAmount:7000},
+{id:'R1003',customerId:'C003',carId:'V002',driverId:null,start:addDays(iso(today),-5),due:addDays(iso(today),-2),actualReturn:addDays(iso(today),-2),status:'Returned',notes:'Sample completed rental',baseAmount:15000}
+];
+let history=[];
+let role='agent';
+function customer(id){return customers.find(x=>x.id===id)||{name:'Unknown',phone:'',licence:''}}
+function car(id){return cars.find(x=>x.id===id)||{plate:'Unknown',model:'Unknown',rate:0,status:'Unknown'}}
+function driver(id){return drivers.find(x=>x.id===id)||null}
+function statusPill(s){return `<span class="pill ${s.toLowerCase()}">${s}</span>`}
+function rentalTotal(r){return Number(r.baseAmount||0)+Number(r.lateFee||0)}
+function showPage(id){
+ if((id==='changes'||id==='history')&&role!=='manager'){alert('This page is restricted to managers. Switch to Manager view to access it.');return}
+ document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));
+ document.querySelectorAll('nav button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===id));
+ refreshSelects();
+ if(id==='dashboard')renderDashboard(); if(id==='rentals')renderRentals(); if(id==='rental-details')renderDetails(); if(id==='drivers')renderDrivers(); if(id==='customers')renderCustomers(); if(id==='history')renderHistory(); if(id==='changes')renderChangeForm();
+}
+document.querySelectorAll('nav button[data-page]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+function switchRole(v){role=v;document.getElementById('signedInName').textContent=v==='manager'?'Fleet Manager':'Rental Agent';document.getElementById('roleLabel').textContent=v==='manager'?'Manager':'Agent';document.querySelectorAll('.manager-link').forEach(b=>b.classList.toggle('hidden',v!=='manager'));if(v!=='manager'&&['changes','history'].includes(document.querySelector('.page.active')?.id))showPage('dashboard')}
+function renderDashboard(){
+ document.getElementById('metricActive').textContent=rentals.filter(r=>['Active','Overdue'].includes(r.status)).length;
+ document.getElementById('metricReturns').textContent=rentals.filter(r=>r.status==='Active'&&r.due===iso(today)).length;
+ document.getElementById('metricOverdue').textContent=rentals.filter(r=>r.status==='Overdue'||(r.status==='Active'&&r.due<iso(today))).length;
+ document.getElementById('metricCars').textContent=cars.filter(c=>c.status==='Available').length;
+ const rows=rentals.filter(r=>r.status!=='Returned').slice(0,6);
+ document.getElementById('dashboardRows').innerHTML=rows.map(r=>`<tr><td>${r.id}</td><td>${customer(r.customerId).name}</td><td>${car(r.carId).plate}</td><td>${r.due}</td><td>${statusPill(r.status)}</td><td><button class="small" onclick="openRental('${r.id}')">Open</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty">No rentals to show.</td></tr>';
+}
+function renderRentals(){
+ const q=(document.getElementById('rentalSearch').value||'').toLowerCase(),s=document.getElementById('rentalStatus').value;
+ const rows=rentals.filter(r=>{const c=customer(r.customerId),v=car(r.carId);return(!s||r.status===s)&&[r.id,c.name,c.phone,v.plate,v.model].join(' ').toLowerCase().includes(q)});
+ document.getElementById('rentalRows').innerHTML=rows.map(r=>`<tr><td>${r.id}</td><td>${customer(r.customerId).name}</td><td>${car(r.carId).plate} · ${car(r.carId).model}</td><td>${r.start}</td><td>${r.due}</td><td>${statusPill(r.status)}</td><td>${money(rentalTotal(r))}</td><td><button class="small" onclick="openRental('${r.id}')">Details</button></td></tr>`).join('')||'<tr><td colspan="8" class="empty">No matching rentals.</td></tr>';
+}
+function openRental(id){document.getElementById('detailRentalSelect').value=id;showPage('rental-details');renderDetails()}
+function renderDetails(){
+ const sel=document.getElementById('detailRentalSelect'),id=sel.value,r=rentals.find(x=>x.id===id);
+ if(!r){document.getElementById('detailsContent').innerHTML='<div class="empty">Select a rental to view its details.</div>';return}
+ const c=customer(r.customerId),v=car(r.carId),d=driver(r.driverId);
+ document.getElementById('detailsContent').innerHTML=`<div class="totals"><div class="total-box"><span>Rental ID</span><strong>${r.id}</strong></div><div class="total-box"><span>Status</span><strong>${r.status}</strong></div><div class="total-box"><span>Total recorded</span><strong>${money(rentalTotal(r))}</strong></div></div><div class="form-grid"><div><label>Customer</label><p>${c.name}<br><span class="muted">${c.phone} · Licence ${c.licence}</span></p></div><div><label>Vehicle</label><p>${v.model} (${v.plate})<br><span class="muted">${money(v.rate)} per day</span></p></div><div><label>Rental period</label><p>${r.start} to ${r.due}<br><span class="muted">Actual return: ${r.actualReturn||'Not returned'}</span></p></div><div><label>Assigned driver</label><p>${d?d.name:'No driver assigned'}</p></div><div class="field full"><label>Notes</label><p>${r.notes||'—'}</p></div></div><div class="actions"><button class="primary" onclick="selectForReturn('${r.id}')">Process return</button><button class="secondary" onclick="selectForDriver('${r.id}')">Assign driver</button></div>`;
+}
+function refreshSelects(){
+ const active=rentals.filter(r=>r.status==='Active'||r.status==='Overdue');
+ const option=(r)=>`<option value="${r.id}">${r.id} — ${customer(r.customerId).name} — ${car(r.carId).plate}</option>`;
+ const set=(id,rows,empty)=>{const el=document.getElementById(id);if(!el)return;const old=el.value;el.innerHTML=(empty||'')+rows.map(option).join('');if(rows.some(r=>r.id===old))el.value=old};
+ set('detailRentalSelect',rentals,'<option value="">Choose a rental</option>');
+ set('returnRental',active,'<option value="">Choose active rental</option>');
+ set('driverRental',active,'<option value="">Choose active rental</option>');
+ set('changeRental',active,'<option value="">Choose active rental</option>');
+ const availableCars=cars.filter(c=>c.status==='Available');
+ document.getElementById('walkCar').innerHTML='<option value="">Choose available vehicle</option>'+availableCars.map(c=>`<option value="${c.id}">${c.plate} — ${c.model} (${money(c.rate)}/day)</option>`).join('');
+ document.getElementById('changeCar').innerHTML='<option value="">Keep current vehicle</option>'+availableCars.map(c=>`<option value="${c.id}">${c.plate} — ${c.model}</option>`).join('');
+ const availableDrivers=drivers.filter(d=>d.status==='Available');
+ document.getElementById('walkDriver').innerHTML='<option value="">No driver assigned</option>'+availableDrivers.map(d=>`<option value="${d.id}">${d.name}</option>`).join('');
+ document.getElementById('driverChoice').innerHTML=availableDrivers.map(d=>`<option value="${d.id}">${d.name} (${d.phone})</option>`).join('');
+ document.getElementById('changeDriver').innerHTML='<option value="">Keep current driver</option>'+availableDrivers.map(d=>`<option value="${d.id}">${d.name}</option>`).join('');
+}
+function selectForReturn(id){showPage('return');document.getElementById('returnRental').value=id;calculateReturn()}
+function selectForDriver(id){showPage('drivers');document.getElementById('driverRental').value=id}
+function dayDiff(a,b){return Math.max(0,Math.floor((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000))}
+function calculateReturn(){
+ const r=rentals.find(x=>x.id===document.getElementById('returnRental').value);
+ const actual=document.getElementById('actualReturn').value||iso(today),rate=Math.max(0,Number(document.getElementById('lateRate').value||0));
+ const late=r?dayDiff(r.due,actual):0,fee=late*rate,base=r?Number(r.baseAmount||0):0;
+ document.getElementById('daysLate').textContent=late;document.getElementById('lateFee').textContent=money(fee);document.getElementById('returnTotal').textContent=money(base+fee);
+ document.getElementById('returnMessage').textContent='';
+}
+function processReturn(){
+ const id=document.getElementById('returnRental').value,actual=document.getElementById('actualReturn').value||iso(today),r=rentals.find(x=>x.id===id);
+ if(!r){alert('Choose an active rental first.');return}
+ if(actual<r.start){alert('Return date cannot be before the rental start date.');return}
+ const late=dayDiff(r.due,actual),fee=late*Math.max(0,Number(document.getElementById('lateRate').value||0));
+ r.actualReturn=actual;r.lateDays=late;r.lateFee=fee;r.status='Returned';car(r.carId).status='Available';if(r.driverId){const d=driver(r.driverId);if(d)d.status='Available'}
+ document.getElementById('returnMessage').innerHTML=`<div class="notice">Return saved for ${r.id}. Days late: ${late}; late fee: ${money(fee)}; total due: <strong>${money(rentalTotal(r))}</strong>.</div>`;
+ refreshSelects();renderDashboard();
+}
+document.getElementById('walkStart').value=iso(today);document.getElementById('walkDue').value=addDays(iso(today),1);document.getElementById('actualReturn').value=iso(today);
+document.getElementById('walkinForm').addEventListener('submit',e=>{
+ e.preventDefault();const name=document.getElementById('walkName').value.trim(),phone=document.getElementById('walkPhone').value.trim(),lic=document.getElementById('walkLicense').value.trim(),carId=document.getElementById('walkCar').value,start=document.getElementById('walkStart').value,due=document.getElementById('walkDue').value,driverId=document.getElementById('walkDriver').value;
+ if(due<start){alert('Expected return date must be on or after start date.');return}
+ const v=car(carId);if(!carId||v.status!=='Available'){alert('Choose an available vehicle.');return}
+ let c=customers.find(x=>x.phone===phone||x.licence.toLowerCase()===lic.toLowerCase());
+ if(!c){c={id:'C'+String(customers.length+1).padStart(3,'0'),name,phone,licence:lic};customers.push(c)}else{c.name=name;c.phone=phone;c.licence=lic}
+ const days=Math.max(1,dayDiff(start,due)),r={id:'R'+(1001+rentals.length),customerId:c.id,carId,driverId:driverId||null,start,due,actualReturn:null,status:due<iso(today)?'Overdue':'Active',notes:document.getElementById('walkNotes').value,baseAmount:days*v.rate};
+ rentals.push(r);v.status='Rented';if(driverId)driver(driverId).status='Assigned';this.reset?.();
+ e.target.reset();document.getElementById('walkStart').value=iso(today);document.getElementById('walkDue').value=addDays(iso(today),1);refreshSelects();renderDashboard();alert(`Rental ${r.id} created. Estimated base charge: ${money(r.baseAmount)}.`);showPage('rentals');
+});
+document.getElementById('driverForm').addEventListener('submit',e=>{
+ e.preventDefault();const r=rentals.find(x=>x.id===document.getElementById('driverRental').value),d=driver(document.getElementById('driverChoice').value);
+ if(!r||!d){alert('Choose a rental and an available driver.');return}
+ if(r.driverId){const old=driver(r.driverId);if(old)old.status='Available'}
+ r.driverId=d.id;d.status='Assigned';refreshSelects();renderDrivers();alert(`${d.name} assigned to ${r.id}.`);
+});
+function renderDrivers(){document.getElementById('driverRows').innerHTML=drivers.map(d=>`<tr><td>${d.id}</td><td>${d.name}</td><td>${d.phone}</td><td>${d.licence}</td><td>${statusPill(d.status==='Assigned'?'Active':'Available')}</td></tr>`).join('')}
+function renderCustomers(){
+ const q=(document.getElementById('customerSearch').value||'').toLowerCase(),rows=customers.filter(c=>[c.id,c.name,c.phone,c.licence].join(' ').toLowerCase().includes(q));
+ document.getElementById('customerRows').innerHTML=rows.map(c=>`<tr><td>${c.id}</td><td>${c.name}</td><td>${c.phone}</td><td>${c.licence}</td><td>${rentals.filter(r=>r.customerId===c.id).length}</td><td><button class="small" onclick="customerRentals('${c.id}')">View rentals</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty">No matching customers.</td></tr>';
+}
+function customerRentals(id){const c=customer(id),rs=rentals.filter(r=>r.customerId===id);document.getElementById('customerResult').innerHTML=`<div class="panel"><h2>Rental history: ${c.name}</h2>${rs.length?'<div class="table-wrap"><table><thead><tr><th>Rental</th><th>Vehicle</th><th>Dates</th><th>Status</th><th></th></tr></thead><tbody>'+rs.map(r=>`<tr><td>${r.id}</td><td>${car(r.carId).plate}</td><td>${r.start} – ${r.due}</td><td>${statusPill(r.status)}</td><td><button class="small" onclick="openRental('${r.id}')">Open</button></td></tr>`).join('')+'</tbody></table></div>':'<p class="muted">No rentals recorded.</p>'}</div>`}
+function renderChangeForm(){
+ const r=rentals.find(x=>x.id===document.getElementById('changeRental').value);
+ document.getElementById('changeCar').value='';document.getElementById('changeDriver').value='';
+ if(r){const currentCar=car(r.carId);const opt=document.createElement('option');opt.value=r.carId;opt.textContent=`Current: ${currentCar.plate} — ${currentCar.model}`;document.getElementById('changeCar').prepend(opt)}
+}
+document.getElementById('changeForm').addEventListener('submit',e=>{
+ e.preventDefault();if(role!=='manager'){alert('Manager permission required.');return}
+ const r=rentals.find(x=>x.id===document.getElementById('changeRental').value),newCarId=document.getElementById('changeCar').value,newDriverId=document.getElementById('changeDriver').value,reason=document.getElementById('changeReason').value.trim();
+ if(!r||!reason){alert('Select a rental and provide a reason.');return}
+ if(!newCarId&&!newDriverId){alert('Select a replacement car or driver.');return}
+ const stamp=new Date().toLocaleString();
+ if(newCarId&&newCarId!==r.carId){const old=car(r.carId),next=car(newCarId);if(next.status!=='Available'){alert('Replacement car is not available.');return}history.unshift({time:stamp,rental:r.id,change:'Vehicle',old:old.plate,new:next.plate,reason,by:'Fleet Manager'});old.status='Available';next.status='Rented';r.carId=newCarId}
+ if(newDriverId&&newDriverId!==r.driverId){const old=driver(r.driverId),next=driver(newDriverId);if(!next||next.status!=='Available'){alert('Replacement driver is not available.');return}history.unshift({time:stamp,rental:r.id,change:'Driver',old:old?old.name:'None',new:next.name,reason,by:'Fleet Manager'});if(old)old.status='Available';next.status='Assigned';r.driverId=newDriverId}
+ document.getElementById('changeReason').value='';refreshSelects();renderHistory();alert('Change saved and added to the audit history.');
+});
+function renderHistory(){document.getElementById('historyRows').innerHTML=history.map(h=>`<tr><td>${h.time}</td><td>${h.rental}</td><td>${h.change}</td><td>${h.old}</td><td>${h.new}</td><td>${h.reason}</td><td>${h.by}</td></tr>`).join('')||'<tr><td colspan="7" class="empty">No changes have been recorded in this demo session.</td></tr>'}
+refreshSelects();renderDashboard();renderRentals();renderDetails();renderDrivers();renderCustomers();calculateReturn();
+</script>
+</body>
+</html>
