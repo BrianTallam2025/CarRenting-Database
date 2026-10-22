@@ -3,30 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Add or edit driver | Fleet</title>
+  <title>{% if driver %}Edit driver{% else %}Add driver{% endif %} | Fleet</title>
   <!-- F1's shared styles. Missing until main.css is pushed. -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/components/fleet.css') }}">
 </head>
 <body>
   <!-- Temporary header and menu so the pages can be opened on their own.
-       Delete this block and use {% extends "shared/base.html" %} once F1 ships base.html. -->
+       Delete this block and use the base template once F1 ships base.html. -->
   <header class="fleet-temp-header">
     <strong>Car Rental</strong>
     <nav aria-label="Fleet">
-      <a href="dashboard.html">Dashboard</a>
-      <a href="vehicles.html">Cars</a>
-      <a href="insurance.html">Insurance</a>
-      <a href="maintenance.html">Maintenance</a>
-      <a href="drivers.html" class="current">Drivers</a>
+      <a href="/fleet">Dashboard</a>
+      <a href="/fleet/vehicles">Cars</a>
+      <a href="/fleet/insurance">Insurance</a>
+      <a href="/fleet/maintenance">Maintenance</a>
+      <a href="/fleet/drivers" class="current">Drivers</a>
     </nav>
   </header>
 
   <main class="fleet-page">
-    <h1>Add driver</h1>
-    <!-- One page for both. When editing, change the heading to "Edit driver" and fill the values. -->
+    <h1>{% if driver %}Edit driver{% else %}Add driver{% endif %}</h1>
 
-    <form class="card form-layout" action="/fleet/drivers/new" method="post">
+    <form class="card form-layout"
+          action="{% if driver %}/fleet/drivers/{{ driver.Driver_ID }}/edit{% else %}/fleet/drivers/new{% endif %}"
+          method="post">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
       <div class="form-row">
@@ -47,8 +48,8 @@
       </div>
 
       <div class="form-actions">
-        <button class="btn" type="submit">Save driver</button>
-        <a href="drivers.html">Cancel</a>
+        <button class="btn" type="submit">{% if driver %}Save changes{% else %}Add driver{% endif %}</button>
+        <a href="/fleet/drivers">Cancel</a>
       </div>
     </form>
   </main>

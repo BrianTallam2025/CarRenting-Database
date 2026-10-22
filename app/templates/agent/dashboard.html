@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent dashboard | Agent</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/agent.css') }}">
+</head>
+<body>
+  <!-- Temporary header until F1 ships shared/base.html; then use the base template. -->
+  <header class="agent-temp-header">
+    <strong>Car Rental</strong>
+    <nav aria-label="Agent">
+      <a href="/agent" class="current">Dashboard</a>
+      <a href="/agent/rentals">Rentals</a>
+      <a href="/agent/rent">Walk-in</a>
+      <a href="/agent/customers">Customers</a>
+      {% if current_user.role == 'fleet_manager' %}
+      <a href="/fleet/assignment-history">Change history</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main class="agent-page">
+    <h1>Agent dashboard</h1>
+
+    <section class="metrics">
+      <div class="card metric">
+        <span class="metric-number">{{ counts.active }}</span>
+        <span class="metric-label">Active rentals</span>
+      </div>
+      <div class="card metric">
+        <span class="metric-number">{{ counts.due_today }}</span>
+        <span class="metric-label">Returns due today</span>
+      </div>
+      <div class="card metric">
+        <span class="metric-number">{{ counts.overdue }}</span>
+        <span class="metric-label">Overdue rentals</span>
+      </div>
+      <div class="card metric">
+        <span class="metric-number">{{ counts.available }}</span>
+        <span class="metric-label">Cars available</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Returns due today</h2>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Rental</th><th>Customer</th><th>Plate</th><th>Due date</th></tr>
+          </thead>
+          <tbody>
+            {% for r in due_today %}
+            <tr>
+              <td><a href="/agent/rentals/{{ r.Rental_ID }}">#{{ r.Rental_ID }}</a></td>
+              <td>{{ r.Customer_First_Name }} {{ r.Customer_Last_Name }}</td>
+              <td>{{ r.Plate_Number }}</td>
+              <td>{{ r.Due_Date }}</td>
+            </tr>
+            {% else %}
+            <tr class="empty-row"><td colspan="4">Nothing due back today.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Overdue rentals</h2>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Rental</th><th>Customer</th><th>Plate</th><th>Due date</th><th>Days late</th></tr>
+          </thead>
+          <tbody>
+            {% for r in overdue %}
+            <tr>
+              <td><a href="/agent/rentals/{{ r.Rental_ID }}">#{{ r.Rental_ID }}</a></td>
+              <td>{{ r.Customer_First_Name }} {{ r.Customer_Last_Name }}</td>
+              <td>{{ r.Plate_Number }}</td>
+              <td>{{ r.Due_Date }}</td>
+              <td>{{ r.days_late }}</td>
+            </tr>
+            {% else %}
+            <tr class="empty-row"><td colspan="5">No overdue rentals.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

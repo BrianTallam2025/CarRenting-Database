@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Assign driver | Agent</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/agent.css') }}">
+</head>
+<body>
+  <!-- Temporary header until F1 ships shared/base.html; then use the base template. -->
+  <header class="agent-temp-header">
+    <strong>Car Rental</strong>
+    <nav aria-label="Agent">
+      <a href="/agent">Dashboard</a>
+      <a href="/agent/rentals" class="current">Rentals</a>
+      <a href="/agent/rent">Walk-in</a>
+      <a href="/agent/customers">Customers</a>
+      {% if current_user.role == 'fleet_manager' %}
+      <a href="/fleet/assignment-history">Change history</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main class="agent-page">
+    <h1>Assign driver</h1>
+
+    <section class="card">
+      <h2>Rental #{{ rental.Rental_ID }}</h2>
+      <p>
+        {% if rental.Is_Chauffeur %}
+          This rental already has a chauffeur.
+        {% else %}
+          This rental is self-drive. Assign a driver below.
+        {% endif %}
+      </p>
+    </section>
+
+    <form class="card agent-form" method="post"
+          action="/agent/rentals/{{ rental.Rental_ID }}/assign-driver"
+          data-confirm="Assign this driver to the rental?">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="field">
+        <label for="driver_id">Available driver</label>
+        <select id="driver_id" name="driver_id" required>
+          <option value="">Choose a driver</option>
+          {% for d in free_drivers %}
+          <option value="{{ d.Driver_ID }}">{{ d.First_Name }} {{ d.Last_Name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn" type="submit">Assign driver</button>
+        <a href="/agent/rentals/{{ rental.Rental_ID }}">Cancel</a>
+      </div>
+    </form>
+  </main>
+  <script src="{{ url_for('static', filename='js/confirm.js') }}"></script>
+</body>
+</html>

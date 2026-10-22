@@ -14,6 +14,10 @@ Template file for each page follows the README tree (`shared/`, `customer/`, `ag
 - **Object aliases are lowercase:** `vehicle`, `customer`, `driver`, `rental`, `policy`, `job`, `account`, `history`.
 - **Fields use the exact database column names:** `vehicle.Make`, `vehicle.Plate_Number`, `vehicle.Daily_Rate`, `customer.Tier`, `rental.Due_Date`.
 - **Lists are plural and lowercase:** `vehicles`, `rentals`, `drivers`, `customers`, `policies`, `jobs`, `trips`.
+- **Rows in a joined list are flat.** The contract may describe a list with its table name
+  (`vehicle.Make`, `customer.First_Name`); in the template each row is a flat dict, so use
+  `v.Make`, `r.Due_Date`. When two joined tables share a column, alias it with the table
+  name: `Customer_First_Name`, `Driver_First_Name`.
 - **Computed values are lowercase snake_case:** `today`, `days`, `days_late`, `late_fee`, `amount_due`, `discount_percent`.
 - Every object also carries its primary key: `vehicle.Vehicle_ID`, `customer.Customer_ID`, `driver.Driver_ID`, `rental.Rental_ID`, `policy.Policy_ID`, `job.Maintenance_ID`.
 
@@ -200,15 +204,18 @@ Errors:       'Phone number must be unique for you', success shown as a green fl
 
 ## F3: rental agent pages and the two reassign pages
 
+Joined lists are flat rows; columns that collide across tables are prefixed
+(`Customer_First_Name`, `Driver_First_Name`).
+
 ### Agent dashboard
 ```
 Route:        GET /agent
 Who can open: Rental Agent
-Page gets:    due_today - list of rental.Rental_ID, rental.Due_Date,
-              customer.First_Name, customer.Last_Name, vehicle.Plate_Number,
-              overdue - list of rental.Rental_ID, rental.Due_Date,
-              customer.First_Name, customer.Last_Name, vehicle.Plate_Number,
-              days_late (per row)
+Page gets:    counts - active, due_today, overdue, available (integers),
+              due_today - rows of Rental_ID, Due_Date,
+              Customer_First_Name, Customer_Last_Name, Plate_Number,
+              overdue - rows of Rental_ID, Due_Date,
+              Customer_First_Name, Customer_Last_Name, Plate_Number, days_late
 Form sends:   no form
 After submit: n/a
 Errors:       none
@@ -218,11 +225,12 @@ Errors:       none
 ```
 Route:        GET /agent/rentals
 Who can open: Rental Agent
-Page gets:    rentals - list of
-              rental.Rental_ID, rental.Rental_Date, rental.Due_Date, rental.Return_Date,
-              customer.First_Name, customer.Last_Name,
-              vehicle.Make, vehicle.Model, vehicle.Plate_Number,
-              driver.First_Name, driver.Last_Name (empty when self-drive)
+Page gets:    rentals - rows of
+              Rental_ID, Rental_Date, Due_Date, Return_Date,
+              status (derived: active, overdue, returned),
+              Customer_First_Name, Customer_Last_Name,
+              Make, Model, Plate_Number,
+              Driver_First_Name, Driver_Last_Name (empty when self-drive)
 Filter (URL): ?search= (name, plate or rental id)
 Form sends:   GET filter form (search)
 After submit: same page, filtered
@@ -247,15 +255,15 @@ Errors:       'Rental not found' as a 404 page
 ```
 Route:        GET /agent/rent
 Who can open: Rental Agent
-Page gets:    customers - list of customer.Customer_ID, customer.First_Name,
-              customer.Last_Name, customer.Email, customer.Tier,
-              vehicles - list of vehicle.Vehicle_ID, vehicle.Make, vehicle.Model,
-              vehicle.Plate_Number, vehicle.Daily_Rate (available only),
-              drivers - list of driver.Driver_ID, driver.First_Name, driver.Last_Name (free only)
+Page gets:    customers - rows of Customer_ID, First_Name, Last_Name, Email, Tier,
+              vehicles - rows of Vehicle_ID, Make, Model, Plate_Number, Daily_Rate
+              (available only),
+              drivers - rows of Driver_ID, First_Name, Last_Name (free only)
 Form sends:   POST /agent/rent
               customer_id (existing) OR new_customer fields (first_name, last_name, email,
               national_id, license_number, license_expiry),
-              vehicle_id, start_date, end_date, is_chauffeur, driver_id (optional)
+              vehicle_id, start_date, end_date, is_chauffeur, driver_id (optional;
+              driver_id is only accepted when is_chauffeur is true)
 After submit: goes to /agent/rentals/<rental_id>
 Errors:       'Vehicle not available', 'Customer license expired', 'Driver not available'
 ```
@@ -264,10 +272,11 @@ Errors:       'Vehicle not available', 'Customer license expired', 'Driver not a
 ```
 Route:        GET /agent/rentals/<id>/return
 Who can open: Rental Agent
-Page gets:    rental.Rental_ID, rental.Rental_Date, rental.Due_Date, rental.Total_Cost,
+Page gets:    rental.Rental_ID, rental.Rental_Date, rental.Due_Date,
+              rental.Total_Cost, rental.Late_Fee,
               vehicle.Make, vehicle.Model, vehicle.Daily_Rate,
               customer.First_Name, customer.Last_Name,
-              today
+              today, days_late, late_fee, amount_due
 Form sends:   POST /agent/rentals/<id>/return
               return_date
 After submit: goes to /agent/rentals/<id>
@@ -279,7 +288,7 @@ Errors:       'Rental already returned' as a red flash message
 Route:        GET /agent/rentals/<id>/assign-driver
 Who can open: Rental Agent
 Page gets:    rental.Rental_ID, rental.Is_Chauffeur,
-              free_drivers - list of driver.Driver_ID, driver.First_Name, driver.Last_Name
+              free_drivers - rows of Driver_ID, First_Name, Last_Name
 Form sends:   POST /agent/rentals/<id>/assign-driver
               driver_id
 After submit: goes to /agent/rentals/<id>
@@ -290,11 +299,10 @@ Errors:       'Driver is not available' as a red flash message
 ```
 Route:        GET /agent/customers
 Who can open: Rental Agent
-Page gets:    customers - list of customer.Customer_ID, customer.First_Name,
-              customer.Last_Name, customer.Email, customer.Tier,
-              selected - customer.First_Name, customer.Last_Name, customer.Tier,
-              rentals - list of rental.Rental_ID, rental.Rental_Date, rental.Due_Date,
-              vehicle.Make, vehicle.Model (for the selected customer)
+Page gets:    customers - rows of Customer_ID, First_Name, Last_Name, Email, Tier,
+              selected - First_Name, Last_Name, Tier,
+              rentals - rows of Rental_ID, Rental_Date, Due_Date, Make, Model
+              (for the selected customer)
 Filter (URL): ?q= (name, email or license number)
 Form sends:   GET search form (q)
 After submit: same page, filtered
@@ -308,9 +316,9 @@ Who can open: Fleet Manager
 Page gets:    rental.Rental_ID, rental.Rental_Date, rental.Due_Date,
               vehicle.Make, vehicle.Model, vehicle.Plate_Number (current),
               driver.First_Name, driver.Last_Name (current, empty when self-drive),
-              available_vehicles - list of vehicle.Vehicle_ID, vehicle.Make, vehicle.Model,
-              vehicle.Plate_Number, vehicle.Daily_Rate (available and insured),
-              free_drivers - list of driver.Driver_ID, driver.First_Name, driver.Last_Name
+              available_vehicles - rows of Vehicle_ID, Make, Model, Plate_Number, Daily_Rate
+              (available and insured),
+              free_drivers - rows of Driver_ID, First_Name, Last_Name
 Form sends:   POST /fleet/rentals/<id>/reassign
               vehicle_id, driver_id, reason
 After submit: goes to /fleet/assignment-history
@@ -321,10 +329,9 @@ Errors:       'Vehicle not insured', 'Vehicle not available', 'Driver not availa
 ```
 Route:        GET /fleet/assignment-history
 Who can open: Fleet Manager
-Page gets:    history - list of
-              history.History_ID, history.Rental_ID, history.Changed_At, history.Reason,
-              history.Old_Vehicle_ID, history.New_Vehicle_ID,
-              history.Old_Driver_ID, history.New_Driver_ID,
+Page gets:    history - rows of
+              History_ID, Rental_ID, Changed_At, Reason,
+              Old_Vehicle_ID, New_Vehicle_ID, Old_Driver_ID, New_Driver_ID,
               changed_by (email of the user who made the change)
 Form sends:   no form
 After submit: n/a
@@ -369,9 +376,11 @@ Page gets:    vehicle.* on edit (empty on add):
               vehicle.Model, vehicle.Year, vehicle.Daily_Rate, vehicle.Status
 Form sends:   POST /fleet/vehicles/new
               POST /fleet/vehicles/<id>/edit
-              vin, plate_number, make, model, year, daily_rate, status
+              vin, plate_number, make, model, year, daily_rate
 After submit: goes to /fleet/vehicles
 Errors:       'VIN already exists', 'Plate number already exists' as red flash messages
+Note:         the form does not send status. New cars start as 'available'; status is
+              changed by rentals and maintenance, not by this form.
 ```
 
 ### Insurance
@@ -396,9 +405,11 @@ Who can open: Fleet Manager
 Page gets:    jobs - list of
               job.Maintenance_ID, job.Status, job.Start_Date, job.End_Date, job.Description,
               vehicle.Make, vehicle.Model, vehicle.Plate_Number
-Form sends:   no form (links to schedule; how a job is marked complete is still open - see below)
-After submit: n/a
-Errors:       none
+Form sends:   no form (links to schedule)
+Action:       POST /fleet/maintenance/<id>/complete
+              sets End_Date = CURDATE(), Status = 'completed', car back to 'available'
+After submit: goes to /fleet/maintenance
+Errors:       'Job is already completed'
 ```
 
 ### Schedule maintenance
@@ -408,7 +419,7 @@ Who can open: Fleet Manager
 Page gets:    vehicles - list of vehicle.Vehicle_ID, vehicle.Make, vehicle.Model,
               vehicle.Plate_Number, vehicle.Status (not currently rented)
 Form sends:   POST /fleet/maintenance/new
-              vehicle_id, start_date, description
+              vehicle_id, start_date, end_date (optional), description
 After submit: goes to /fleet/maintenance
 Errors:       'This car is already scheduled for maintenance',
               'A rented car cannot go into maintenance'
@@ -436,15 +447,22 @@ Page gets:    driver.* on edit (empty on add):
               driver.License_Number, driver.Status
 Form sends:   POST /fleet/drivers/new
               POST /fleet/drivers/<id>/edit
-              first_name, last_name, license_number, status
+              first_name, last_name, license_number
 After submit: goes to /fleet/drivers
 Errors:       'License number already exists' as a red flash message
+Note:         the form does not send status. New drivers start as 'available'; status is
+              changed by assigning them to rentals, not by this form.
 ```
 
 ---
 
-## Open questions (ask here, do not guess)
+## Decisions (settled together, Day 0)
 
-- Status values: rentals use `active`, `completed`, `cancelled`? The schema has no Status column
-  on RENTAL (it derives state from `Return_Date`). Decide before B2 builds the rental lists.
-- Maintenance status change: a dedicated POST route, or an edit form? Not yet fixed above.
+- **Rental state is derived, not stored.** `RENTAL` has no `Status` column. An open rental is
+  `Return_Date IS NULL`; a returned one is `Return_Date IS NOT NULL`. A page labels an open
+  rental "overdue" when `Due_Date < CURDATE()`. Do not add a Status column.
+- **Maintenance completion** uses a dedicated action: `POST /fleet/maintenance/<id>/complete`,
+  which sets `End_Date = CURDATE()`, `Status = 'completed'`, and the car back to `available`.
+- **The vehicle form does not send `status`.** New cars start `available`.
+- **The driver form does not send `status`.** New drivers start `available`.
+- **The insurance form does not send a start date.** `INSURANCE_POLICY` only has `Expiry_Date`.

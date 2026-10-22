@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Customer lookup | Agent</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/agent.css') }}">
+</head>
+<body>
+  <!-- Temporary header until F1 ships shared/base.html; then use the base template. -->
+  <header class="agent-temp-header">
+    <strong>Car Rental</strong>
+    <nav aria-label="Agent">
+      <a href="/agent">Dashboard</a>
+      <a href="/agent/rentals">Rentals</a>
+      <a href="/agent/rent">Walk-in</a>
+      <a href="/agent/customers" class="current">Customers</a>
+      {% if current_user.role == 'fleet_manager' %}
+      <a href="/fleet/assignment-history">Change history</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main class="agent-page">
+    <h1>Customer lookup</h1>
+
+    <form class="card" method="get" action="/agent/customers">
+      <label for="q">Search by name, email or license number</label>
+      <input id="q" name="q" value="{{ request.args.get('q', '') }}">
+      <button class="btn" type="submit">Search</button>
+    </form>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>ID</th><th>Name</th><th>Email</th><th>Tier</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for c in customers %}
+            <tr>
+              <td>{{ c.Customer_ID }}</td>
+              <td>{{ c.First_Name }} {{ c.Last_Name }}</td>
+              <td>{{ c.Email }}</td>
+              <td>{{ c.Tier }}</td>
+              <td><a class="btn" href="/agent/customers?selected={{ c.Customer_ID }}">View rentals</a></td>
+            </tr>
+            {% else %}
+            <tr class="empty-row"><td colspan="5">No matching customers.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {% if selected %}
+    <section class="card">
+      <h2>{{ selected.First_Name }} {{ selected.Last_Name }} — {{ selected.Tier }}</h2>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Rental</th><th>Vehicle</th><th>Start</th><th>Due</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for r in rentals %}
+            <tr>
+              <td>#{{ r.Rental_ID }}</td>
+              <td>{{ r.Make }} {{ r.Model }}</td>
+              <td>{{ r.Rental_Date }}</td>
+              <td>{{ r.Due_Date }}</td>
+              <td><a class="btn" href="/agent/rentals/{{ r.Rental_ID }}">Open</a></td>
+            </tr>
+            {% else %}
+            <tr class="empty-row"><td colspan="5">No rentals for this customer.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+    {% endif %}
+  </main>
+</body>
+</html>

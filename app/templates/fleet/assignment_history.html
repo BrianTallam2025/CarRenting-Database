@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Assignment history | Fleet</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/agent.css') }}">
+</head>
+<body>
+  <!-- Temporary header until F1 ships shared/base.html; then use the base template. -->
+  <header class="agent-temp-header">
+    <strong>Car Rental</strong>
+    <nav aria-label="Fleet">
+      <a href="/fleet">Dashboard</a>
+      <a href="/fleet/vehicles">Cars</a>
+      <a href="/fleet/insurance">Insurance</a>
+      <a href="/fleet/maintenance">Maintenance</a>
+      <a href="/fleet/drivers">Drivers</a>
+      <a href="/fleet/assignment-history" class="current">Change history</a>
+    </nav>
+  </header>
+
+  <main class="agent-page">
+    <h1>Assignment history</h1>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>When</th><th>Rental</th><th>Old car</th><th>New car</th>
+              <th>Old driver</th><th>New driver</th><th>Reason</th><th>Changed by</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for h in history %}
+            <tr>
+              <td>{{ h.Changed_At }}</td>
+              <td><a href="/agent/rentals/{{ h.Rental_ID }}">#{{ h.Rental_ID }}</a></td>
+              <td>{{ h.Old_Vehicle_ID or '—' }}</td>
+              <td>{{ h.New_Vehicle_ID or '—' }}</td>
+              <td>{{ h.Old_Driver_ID or '—' }}</td>
+              <td>{{ h.New_Driver_ID or '—' }}</td>
+              <td>{{ h.Reason or '—' }}</td>
+              <td>{{ h.changed_by }}</td>
+            </tr>
+            {% else %}
+            <tr class="empty-row"><td colspan="8">No changes recorded yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

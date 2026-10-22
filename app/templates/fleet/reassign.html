@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Change car or driver | Fleet</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/agent.css') }}">
+</head>
+<body>
+  <!-- Temporary header until F1 ships shared/base.html; then use the base template. -->
+  <header class="agent-temp-header">
+    <strong>Car Rental</strong>
+    <nav aria-label="Fleet">
+      <a href="/fleet">Dashboard</a>
+      <a href="/fleet/vehicles">Cars</a>
+      <a href="/fleet/insurance">Insurance</a>
+      <a href="/fleet/maintenance">Maintenance</a>
+      <a href="/fleet/drivers">Drivers</a>
+      <a href="/fleet/assignment-history">Change history</a>
+    </nav>
+  </header>
+
+  <main class="agent-page">
+    <h1>Change car or driver</h1>
+    <p class="muted">Rental #{{ rental.Rental_ID }} · {{ rental.Rental_Date }} to {{ rental.Due_Date }}</p>
+
+    <section class="card">
+      <h2>Currently assigned</h2>
+      <p>
+        Car: {{ vehicle.Make }} {{ vehicle.Model }} ({{ vehicle.Plate_Number }})<br>
+        Driver: {% if driver %}{{ driver.First_Name }} {{ driver.Last_Name }}{% else %}Self-drive{% endif %}
+      </p>
+    </section>
+
+    <form class="card agent-form" method="post"
+          action="/fleet/rentals/{{ rental.Rental_ID }}/reassign"
+          data-confirm="Save this change? It will be written to the assignment history.">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="field">
+        <label for="vehicle_id">Replacement car</label>
+        <select id="vehicle_id" name="vehicle_id">
+          <option value="">Keep current car</option>
+          {% for v in available_vehicles %}
+          <option value="{{ v.Vehicle_ID }}">{{ v.Make }} {{ v.Model }} ({{ v.Plate_Number }}) — KES {{ v.Daily_Rate }}/day</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="driver_id">Replacement driver</label>
+        <select id="driver_id" name="driver_id">
+          <option value="">Keep current driver</option>
+          {% for d in free_drivers %}
+          <option value="{{ d.Driver_ID }}">{{ d.First_Name }} {{ d.Last_Name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="reason">Reason for change</label>
+        <textarea id="reason" name="reason" rows="3" required></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn" type="submit">Save change</button>
+        <a href="/agent/rentals/{{ rental.Rental_ID }}">Cancel</a>
+      </div>
+    </form>
+  </main>
+  <script src="{{ url_for('static', filename='js/confirm.js') }}"></script>
+</body>
+</html>

@@ -10,15 +10,15 @@
 </head>
 <body>
   <!-- Temporary header and menu so the pages can be opened on their own.
-       Delete this block and use {% extends "shared/base.html" %} once F1 ships base.html. -->
+       Delete this block and use the base template once F1 ships base.html. -->
   <header class="fleet-temp-header">
     <strong>Car Rental</strong>
     <nav aria-label="Fleet">
-      <a href="dashboard.html">Dashboard</a>
-      <a href="vehicles.html">Cars</a>
-      <a href="insurance.html">Insurance</a>
-      <a href="maintenance.html" class="current">Maintenance</a>
-      <a href="drivers.html">Drivers</a>
+      <a href="/fleet">Dashboard</a>
+      <a href="/fleet/vehicles">Cars</a>
+      <a href="/fleet/insurance">Insurance</a>
+      <a href="/fleet/maintenance" class="current">Maintenance</a>
+      <a href="/fleet/drivers">Drivers</a>
     </nav>
   </header>
 
@@ -45,7 +45,7 @@
         </div>
         <div class="form-field">
           <label for="end">End date</label>
-          <input id="end" type="date" name="end_date" required>
+          <input id="end" type="date" name="end_date">
         </div>
       </div>
 
@@ -56,7 +56,7 @@
 
       <div class="form-actions">
         <button class="btn" type="submit">Schedule</button>
-        <a href="maintenance.html">Cancel</a>
+        <a href="/fleet/maintenance">Cancel</a>
       </div>
     </form>
   </main>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Walk-in rental | Agent</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/agent.css') }}">
+</head>
+<body>
+  <!-- Temporary header until F1 ships shared/base.html; then use the base template. -->
+  <header class="agent-temp-header">
+    <strong>Car Rental</strong>
+    <nav aria-label="Agent">
+      <a href="/agent">Dashboard</a>
+      <a href="/agent/rentals">Rentals</a>
+      <a href="/agent/rent" class="current">Walk-in</a>
+      <a href="/agent/customers">Customers</a>
+      {% if current_user.role == 'fleet_manager' %}
+      <a href="/fleet/assignment-history">Change history</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main class="agent-page">
+    <h1>Walk-in rental</h1>
+
+    <form class="card agent-form" method="post" action="/agent/rent">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="field">
+        <label for="customer_id">Existing customer</label>
+        <select id="customer_id" name="customer_id">
+          <option value="">New customer (fill in below)</option>
+          {% for c in customers %}
+          <option value="{{ c.Customer_ID }}">{{ c.First_Name }} {{ c.Last_Name }} — {{ c.Email }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <fieldset class="field">
+        <legend>New customer</legend>
+        <div class="form-grid">
+          <div class="field"><label for="first_name">First name</label><input id="first_name" name="first_name"></div>
+          <div class="field"><label for="last_name">Last name</label><input id="last_name" name="last_name"></div>
+          <div class="field"><label for="email">Email</label><input id="email" name="email" type="email"></div>
+          <div class="field"><label for="national_id">National ID</label><input id="national_id" name="national_id"></div>
+          <div class="field"><label for="license_number">License number</label><input id="license_number" name="license_number"></div>
+          <div class="field"><label for="license_expiry">License expiry</label><input id="license_expiry" name="license_expiry" type="date"></div>
+        </div>
+      </fieldset>
+
+      <div class="field">
+        <label for="vehicle_id">Available vehicle</label>
+        <select id="vehicle_id" name="vehicle_id" required>
+          {% for v in vehicles %}
+          <option value="{{ v.Vehicle_ID }}">{{ v.Make }} {{ v.Model }} ({{ v.Plate_Number }}) — KES {{ v.Daily_Rate }}/day</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-grid">
+        <div class="field"><label for="start_date">Start date</label><input id="start_date" name="start_date" type="date" required></div>
+        <div class="field"><label for="end_date">End date</label><input id="end_date" name="end_date" type="date" required></div>
+      </div>
+
+      <div class="field">
+        <label for="driver_id">Driver (optional)</label>
+        <select id="driver_id" name="driver_id">
+          <option value="">Self-drive</option>
+          {% for d in drivers %}
+          <option value="{{ d.Driver_ID }}">{{ d.First_Name }} {{ d.Last_Name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="checkbox">
+        <input id="is_chauffeur" type="checkbox" name="is_chauffeur" value="true">
+        <label for="is_chauffeur">With a chauffeur</label>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn" type="submit">Create rental</button>
+        <a href="/agent/rentals">Cancel</a>
+      </div>
+    </form>
+  </main>
+</body>
+</html>

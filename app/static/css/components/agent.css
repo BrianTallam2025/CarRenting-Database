@@ -1,0 +1,119 @@
+/* Rental agent pages (F3): agent layout, data table, status pills and form layout.
+   main.css belongs to F1 and fleet.css to F4, so nothing here edits them. */
+
+/* agent layout */
+.agent-page { max-width: 72rem; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+
+/* summary numbers on the dashboard */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.metric { display: flex; flex-direction: column; gap: 0.25rem; }
+.metric-number { font-size: 1.9rem; font-weight: 700; line-height: 1; }
+.metric-label { color: #555; font-size: 0.9rem; }
+
+/* data table (F3 component) */
+.table-wrap { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 0.55rem 0.7rem;
+  border-bottom: 1px solid #e3e3e3;
+  vertical-align: top;
+}
+.data-table th { background: #f0f0f0; white-space: nowrap; }
+.data-table tbody tr:hover { background: #fafafa; }
+.empty-row td { text-align: center; color: #666; padding: 1.25rem; }
+
+/* rental status pills (kept inside the F3 pages) */
+.pill {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  background: #e6e6e6;
+  color: #333;
+}
+.pill-active   { background: #dbe8f5; color: #1c4a78; }
+.pill-overdue  { background: #f6d9d4; color: #8a2a1b; }
+.pill-returned { background: #dcf0e3; color: #1d5c36; }
+
+/* forms on agent pages */
+.agent-form { max-width: 40rem; }
+.field { margin-bottom: 1rem; }
+.field label,
+.field legend { display: block; margin-bottom: 0.25rem; font-weight: 600; }
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 0.5rem;
+  font: inherit;
+  border: 1px solid #999;
+  border-radius: 4px;
+}
+.field textarea { min-height: 5rem; resize: vertical; }
+fieldset.field { border: 1px solid #ddd; border-radius: 4px; padding: 0.75rem 1rem 0; }
+fieldset.field legend { padding: 0 0.35rem; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 0 1rem; }
+.form-actions { display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem; }
+.checkbox { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
+.checkbox input { width: auto; }
+.checkbox label { margin: 0; font-weight: 600; }
+
+/* rental detail totals */
+.totals { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem; }
+.total-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.6rem 0.9rem;
+  background: #f7f7f7;
+  border: 1px solid #e3e3e3;
+  border-radius: 4px;
+}
+.total-box span { color: #666; font-size: 0.8rem; }
+.total-box strong { font-size: 1.05rem; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
+.muted { color: #666; }
+
+/* Temporary fallback so the pages look reasonable before F1's main.css exists.
+   Delete everything below this line once main.css is in main. */
+body { margin: 0; font-family: Arial, sans-serif; color: #222; background: #f5f5f5; line-height: 1.45; }
+.agent-temp-header {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  background: #222;
+  color: #fff;
+}
+.agent-temp-header nav { display: flex; gap: 1rem; flex-wrap: wrap; }
+.agent-temp-header a { color: #ddd; text-decoration: none; }
+.agent-temp-header a.current { color: #fff; border-bottom: 2px solid #fff; }
+.card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+.btn {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: #1e5f8c;
+  color: #fff;
+  border: 0;
+  border-radius: 4px;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn:hover { background: #164a6d; }

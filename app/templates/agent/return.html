@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Process return | Agent</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/agent.css') }}">
+</head>
+<body>
+  <!-- Temporary header until F1 ships shared/base.html; then use the base template. -->
+  <header class="agent-temp-header">
+    <strong>Car Rental</strong>
+    <nav aria-label="Agent">
+      <a href="/agent">Dashboard</a>
+      <a href="/agent/rentals" class="current">Rentals</a>
+      <a href="/agent/rent">Walk-in</a>
+      <a href="/agent/customers">Customers</a>
+      {% if current_user.role == 'fleet_manager' %}
+      <a href="/fleet/assignment-history">Change history</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main class="agent-page">
+    <h1>Process return</h1>
+
+    <section class="card">
+      <h2>Rental #{{ rental.Rental_ID }}</h2>
+      <p>
+        {{ customer.First_Name }} {{ customer.Last_Name }} —
+        {{ vehicle.Make }} {{ vehicle.Model }} ({{ vehicle.Plate_Number }})<br>
+        <span class="muted">Rented {{ rental.Rental_Date }} · Due {{ rental.Due_Date }} · KES {{ vehicle.Daily_Rate }}/day</span>
+      </p>
+    </section>
+
+    <section class="card">
+      <div class="totals">
+        <div class="total-box"><span>Total cost</span><strong>KES {{ rental.Total_Cost }}</strong></div>
+        <div class="total-box"><span>Days late</span><strong>{{ days_late }}</strong></div>
+        <div class="total-box"><span>Late fee</span><strong>KES {{ late_fee }}</strong></div>
+        <div class="total-box"><span>Amount due</span><strong>KES {{ amount_due }}</strong></div>
+      </div>
+
+      <form class="agent-form" method="post"
+            action="/agent/rentals/{{ rental.Rental_ID }}/return"
+            data-confirm="Confirm this return? The late fee will be saved.">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="field">
+          <label for="return_date">Actual return date</label>
+          <input id="return_date" name="return_date" type="date" value="{{ today }}" required>
+        </div>
+        <div class="form-actions">
+          <button class="btn" type="submit">Confirm return</button>
+          <a href="/agent/rentals/{{ rental.Rental_ID }}">Cancel</a>
+        </div>
+      </form>
+    </section>
+  </main>
+  <script src="{{ url_for('static', filename='js/confirm.js') }}"></script>
+</body>
+</html>

@@ -10,15 +10,15 @@
 </head>
 <body>
   <!-- Temporary header and menu so the pages can be opened on their own.
-       Delete this block and use {% extends "shared/base.html" %} once F1 ships base.html. -->
+       Delete this block and use the base template once F1 ships base.html. -->
   <header class="fleet-temp-header">
     <strong>Car Rental</strong>
     <nav aria-label="Fleet">
-      <a href="dashboard.html" class="current">Dashboard</a>
-      <a href="vehicles.html">Cars</a>
-      <a href="insurance.html">Insurance</a>
-      <a href="maintenance.html">Maintenance</a>
-      <a href="drivers.html">Drivers</a>
+      <a href="/fleet" class="current">Dashboard</a>
+      <a href="/fleet/vehicles">Cars</a>
+      <a href="/fleet/insurance">Insurance</a>
+      <a href="/fleet/maintenance">Maintenance</a>
+      <a href="/fleet/drivers">Drivers</a>
     </nav>
   </header>
 
@@ -47,7 +47,7 @@
           </tbody>
         </table>
       </div>
-      <p><a href="insurance.html">See all policies</a></p>
+      <p><a href="/fleet/insurance">See all policies</a></p>
     </section>
   </main>
 </body>

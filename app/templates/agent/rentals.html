@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>All rentals | Agent</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/agent.css') }}">
+</head>
+<body>
+  <!-- Temporary header until F1 ships shared/base.html; then use the base template. -->
+  <header class="agent-temp-header">
+    <strong>Car Rental</strong>
+    <nav aria-label="Agent">
+      <a href="/agent">Dashboard</a>
+      <a href="/agent/rentals" class="current">Rentals</a>
+      <a href="/agent/rent">Walk-in</a>
+      <a href="/agent/customers">Customers</a>
+      {% if current_user.role == 'fleet_manager' %}
+      <a href="/fleet/assignment-history">Change history</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main class="agent-page">
+    <h1>All rentals</h1>
+
+    <form class="card" method="get" action="/agent/rentals">
+      <label for="search">Search by name, plate or rental ID</label>
+      <input id="search" name="search" value="{{ request.args.get('search', '') }}">
+      <button class="btn" type="submit">Search</button>
+    </form>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Rental</th><th>Customer</th><th>Vehicle</th><th>Driver</th>
+              <th>Start</th><th>Due</th><th>Status</th><th>Returned</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in rentals %}
+            <tr>
+              <td>#{{ r.Rental_ID }}</td>
+              <td>{{ r.Customer_First_Name }} {{ r.Customer_Last_Name }}</td>
+              <td>{{ r.Make }} {{ r.Model }} ({{ r.Plate_Number }})</td>
+              <td>{{ r.Driver_First_Name|default('') }} {{ r.Driver_Last_Name|default('') }}</td>
+              <td>{{ r.Rental_Date }}</td>
+              <td>{{ r.Due_Date }}</td>
+              <td><span class="pill pill-{{ r.status }}">{{ r.status }}</span></td>
+              <td>{{ r.Return_Date or 'Open' }}</td>
+              <td><a class="btn" href="/agent/rentals/{{ r.Rental_ID }}">Details</a></td>
+            </tr>
+            {% else %}
+            <tr class="empty-row"><td colspan="9">No matching rentals.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
