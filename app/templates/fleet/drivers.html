@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Drivers | Fleet</title>
   <!-- F1's shared styles. Missing until main.css is pushed. -->
-  <link rel="stylesheet" href="../../static/css/main.css">
-  <link rel="stylesheet" href="../../static/css/components/fleet.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/fleet.css') }}">
 </head>
 <body>
   <!-- Temporary header and menu so the pages can be opened on their own.
@@ -37,7 +37,7 @@
           <tbody>
             <!-- {% for d in drivers %}
             status badge: status-available or status-assigned
-            edit link: /fleet/drivers/{{ d.driver_id }}/edit
+            edit link: /fleet/drivers/{{ d.Driver_ID }}/edit
             {% endfor %} -->
             <tr class="empty-row"><td colspan="4">No drivers yet.</td></tr>
           </tbody>

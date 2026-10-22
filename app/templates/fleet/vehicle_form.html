@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Add car | Fleet</title>
+  <title>{% if vehicle %}Edit car{% else %}Add car{% endif %} | Fleet</title>
   <!-- F1's shared styles. Missing until main.css is pushed. -->
-  <link rel="stylesheet" href="../../static/css/main.css">
-  <link rel="stylesheet" href="../../static/css/components/fleet.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/fleet.css') }}">
 </head>
 <body>
   <!-- Temporary header and menu so the pages can be opened on their own.
@@ -23,46 +23,52 @@
   </header>
 
   <main class="fleet-page">
-    <h1>Add car</h1>
+    <h1>{% if vehicle %}Edit car{% else %}Add car{% endif %}</h1>
 
-    <form class="card form-layout" action="/fleet/vehicles/new" method="post">
+    <!-- One page for both, per the README. The route sends `vehicle` when editing. -->
+    <form class="card form-layout"
+          action="{% if vehicle %}/fleet/vehicles/{{ vehicle.Vehicle_ID }}/edit{% else %}/fleet/vehicles/new{% endif %}"
+          method="post">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
       <div class="form-row">
         <div class="form-field">
           <label for="vin">VIN</label>
-          <input id="vin" name="vin" required>
+          <input id="vin" name="vin" value="{{ vehicle.VIN if vehicle else '' }}" required>
         </div>
         <div class="form-field">
           <label for="plate">Plate number</label>
-          <input id="plate" name="plate_number" placeholder="KDA 123A" required>
+          <input id="plate" name="plate_number" placeholder="KDA 123A"
+                 value="{{ vehicle.Plate_Number if vehicle else '' }}" required>
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-field">
           <label for="make">Make</label>
-          <input id="make" name="make" required>
+          <input id="make" name="make" value="{{ vehicle.Make if vehicle else '' }}" required>
         </div>
         <div class="form-field">
           <label for="model">Model</label>
-          <input id="model" name="model" required>
+          <input id="model" name="model" value="{{ vehicle.Model if vehicle else '' }}" required>
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-field">
           <label for="year">Year</label>
-          <input id="year" type="number" name="year" min="1990" max="2030" required>
+          <input id="year" type="number" name="year" min="1990" max="2030"
+                 value="{{ vehicle.Year if vehicle else '' }}" required>
         </div>
         <div class="form-field">
           <label for="rate">Daily rate (KES)</label>
-          <input id="rate" type="number" name="daily_rate" min="0" required>
+          <input id="rate" type="number" name="daily_rate" min="0"
+                 value="{{ vehicle.Daily_Rate if vehicle else '' }}" required>
         </div>
       </div>
 
       <div class="form-actions">
-        <button class="btn" type="submit">Add car</button>
+        <button class="btn" type="submit">{% if vehicle %}Save changes{% else %}Add car{% endif %}</button>
         <a href="vehicles.html">Cancel</a>
       </div>
     </form>

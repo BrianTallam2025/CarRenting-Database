@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Schedule maintenance | Fleet</title>
   <!-- F1's shared styles. Missing until main.css is pushed. -->
-  <link rel="stylesheet" href="../../static/css/main.css">
-  <link rel="stylesheet" href="../../static/css/components/fleet.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/fleet.css') }}">
 </head>
 <body>
   <!-- Temporary header and menu so the pages can be opened on their own.
@@ -34,7 +34,7 @@
         <label for="vehicle">Car</label>
         <select id="vehicle" name="vehicle_id" required>
           <option value="">Choose a car</option>
-          <!-- {% for v in vehicles %}<option value="{{ v.vehicle_id }}">{{ v.plate_number }}, {{ v.make }} {{ v.model }}</option>{% endfor %} -->
+          <!-- {% for v in vehicles %}<option value="{{ v.Vehicle_ID }}">{{ v.Plate_Number }}, {{ v.Make }} {{ v.Model }}</option>{% endfor %} -->
         </select>
       </div>
 
