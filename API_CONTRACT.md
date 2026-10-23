@@ -263,7 +263,7 @@ Form sends:   POST /agent/rent
               customer_id (existing) OR new_customer fields (first_name, last_name, email,
               national_id, license_number, license_expiry),
               vehicle_id, start_date, end_date, is_chauffeur, driver_id (optional;
-              driver_id is only accepted when is_chauffeur is true)
+              choosing a driver also sets is_chauffeur)
 After submit: goes to /agent/rentals/<rental_id>
 Errors:       'Vehicle not available', 'Customer license expired', 'Driver not available'
 ```

@@ -25,8 +25,12 @@ def query(sql, params=(), one=False):
 
 def execute(sql, params=()):
     db = get_db()
-    with db.cursor() as cur:
-        cur.execute(sql, params)
-        last_id = cur.lastrowid
-    db.commit()
-    return last_id
+    try:
+        with db.cursor() as cur:
+            cur.execute(sql, params)
+            last_id = cur.lastrowid
+        db.commit()
+        return last_id
+    except Exception:
+        db.rollback()
+        raise
