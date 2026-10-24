@@ -229,10 +229,10 @@ FLUSH PRIVILEGES;
 
 | Email | Role | Password |
 |---|---|---|
-| customer@demo.test | customer | `demo1234` |
-| agent@demo.test | rental_agent | `demo1234` |
-| manager@demo.test | fleet_manager | `demo1234` |
-| driver@demo.test | driver | `demo1234` |
+| customer@example.com | customer | `demo1234` |
+| agent@example.com | rental_agent | `demo1234` |
+| manager@example.com | fleet_manager | `demo1234` |
+| driver@example.com | driver | `demo1234` |
 
 `seed_users.py`:
 
@@ -250,10 +250,10 @@ db = pymysql.connect(
 )
 pw = generate_password_hash('demo1234')
 accounts = [
-    ('customer@demo.test', 'customer', 1, None),
-    ('agent@demo.test', 'rental_agent', None, None),
-    ('manager@demo.test', 'fleet_manager', None, None),
-    ('driver@demo.test', 'driver', None, 1),
+    ('customer@example.com', 'customer', 1, None),
+    ('agent@example.com', 'rental_agent', None, None),
+    ('manager@example.com', 'fleet_manager', None, None),
+    ('driver@example.com', 'driver', None, 1),
 ]
 with db.cursor() as cur:
     for email, role, cust, drv in accounts:

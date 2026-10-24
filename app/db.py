@@ -1,4 +1,6 @@
 import pymysql
+from contextlib import contextmanager
+
 from flask import g
 
 from app.config import DB_CONFIG
@@ -31,6 +33,18 @@ def execute(sql, params=()):
             last_id = cur.lastrowid
         db.commit()
         return last_id
+    except Exception:
+        db.rollback()
+        raise
+
+
+@contextmanager
+def transaction():
+    """Run several statements on one connection and commit them together."""
+    db = get_db()
+    try:
+        yield db
+        db.commit()
     except Exception:
         db.rollback()
         raise

@@ -15,10 +15,10 @@ db = pymysql.connect(
 
 pw = generate_password_hash('demo1234')
 accounts = [
-    ('customer@demo.test', 'customer', 1, None),
-    ('agent@demo.test', 'rental_agent', None, None),
-    ('manager@demo.test', 'fleet_manager', None, None),
-    ('driver@demo.test', 'driver', None, 1),
+    ('customer@example.com', 'customer', 1, None),
+    ('agent@example.com', 'rental_agent', None, None),
+    ('manager@example.com', 'fleet_manager', None, None),
+    ('driver@example.com', 'driver', None, 1),
 ]
 
 with db.cursor() as cur:
