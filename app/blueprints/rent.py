@@ -1,14 +1,117 @@
 from datetime import date
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
+from flask_login import current_user
 from pymysql.err import IntegrityError
 
 from app.auth import role_required
-from app.db import execute, query
+from app.config import TIER_DISCOUNTS
+from app.db import execute, query, transaction
+from app.forms import RentForm
 from app.services.pricing import rental_days, total_cost
 from app.services.rules import customer_license_valid, is_driver_free, is_vehicle_available
 
 bp = Blueprint('rent', __name__)
+
+
+@bp.route('/vehicles')
+@role_required('customer')
+def vehicles():
+    make = (request.args.get('make') or '').strip()
+    max_price = request.args.get('max_price', type=float)
+
+    sql = """SELECT v.Vehicle_ID, v.Make, v.Model, v.Year,
+                    v.Daily_Rate, v.Plate_Number
+             FROM VEHICLE v
+             WHERE v.Status = 'available'
+               AND EXISTS (SELECT 1 FROM INSURANCE_POLICY i
+                           WHERE i.Vehicle_ID = v.Vehicle_ID
+                             AND i.Expiry_Date > CURDATE())"""
+    params = []
+    if make:
+        sql += ' AND v.Make LIKE %s'
+        params.append('%' + make + '%')
+    if max_price is not None:
+        sql += ' AND v.Daily_Rate <= %s'
+        params.append(max_price)
+    sql += ' ORDER BY v.Make, v.Model'
+
+    return render_template('customer/vehicles.html',
+                           vehicles=query(sql, tuple(params)))
+
+
+@bp.route('/vehicles/<int:vehicle_id>')
+@role_required('customer')
+def vehicle_detail(vehicle_id):
+    vehicle = query('SELECT * FROM VEHICLE WHERE Vehicle_ID = %s',
+                    (vehicle_id,), one=True)
+    if vehicle is None:
+        abort(404)
+    return render_template('customer/vehicle_detail.html', vehicle=vehicle)
+
+
+@bp.route('/rent/<int:vehicle_id>', methods=['GET', 'POST'])
+@role_required('customer')
+def rent(vehicle_id):
+    vehicle = query('SELECT * FROM VEHICLE WHERE Vehicle_ID = %s',
+                    (vehicle_id,), one=True)
+    if vehicle is None:
+        abort(404)
+
+    customer = query('SELECT * FROM CUSTOMER WHERE Customer_ID = %s',
+                     (current_user.customer_id,), one=True)
+    if customer is None:
+        abort(403)
+
+    form = RentForm()
+    if form.validate_on_submit():
+        if not customer_license_valid(customer['Customer_ID']):
+            flash('Your driving license has expired', 'error')
+        elif not is_vehicle_available(vehicle_id):
+            flash('Vehicle not available', 'error')
+        elif form.end_date.data < form.start_date.data:
+            flash('End date cannot be before start date', 'error')
+        else:
+            days = rental_days(form.start_date.data, form.end_date.data)
+            cost = total_cost(vehicle['Daily_Rate'], days, customer['Tier'])
+            with transaction() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        """INSERT INTO RENTAL
+                           (Customer_ID, Vehicle_ID, Is_Chauffeur,
+                            Rental_Date, Due_Date, Total_Cost)
+                           VALUES (%s, %s, %s, %s, %s, %s)""",
+                        (customer['Customer_ID'], vehicle_id, form.is_chauffeur.data,
+                         form.start_date.data, form.end_date.data, cost))
+                    rental_id = cur.lastrowid
+                    cur.execute(
+                        "UPDATE VEHICLE SET Status = 'rented' WHERE Vehicle_ID = %s",
+                        (vehicle_id,))
+            return redirect(url_for('rent.confirmation', rental_id=rental_id))
+
+    discount_percent = int(TIER_DISCOUNTS[customer['Tier']] * 100)
+    return render_template('customer/rent.html', vehicle=vehicle, customer=customer,
+                           form=form, discount_percent=discount_percent)
+
+
+@bp.route('/rentals/<int:rental_id>/confirmation')
+@role_required('customer')
+def confirmation(rental_id):
+    rental = query(
+        'SELECT * FROM RENTAL WHERE Rental_ID = %s AND Customer_ID = %s',
+        (rental_id, current_user.customer_id), one=True)
+    if rental is None:
+        abort(404)
+
+    vehicle = (query('SELECT * FROM VEHICLE WHERE Vehicle_ID = %s',
+                     (rental['Vehicle_ID'],), one=True)
+               if rental['Vehicle_ID'] else None)
+    driver = (query('SELECT * FROM DRIVER WHERE Driver_ID = %s',
+                    (rental['Driver_ID'],), one=True)
+              if rental['Driver_ID'] else None)
+
+    return render_template('customer/confirmation.html', rental=rental,
+                           vehicle=vehicle, driver=driver)
 
 
 def walkin_page():
@@ -18,8 +121,10 @@ def walkin_page():
     vehicles = query(
         """SELECT v.Vehicle_ID, v.Make, v.Model, v.Plate_Number, v.Daily_Rate
            FROM VEHICLE v
-           JOIN INSURANCE_POLICY i ON i.Vehicle_ID = v.Vehicle_ID
-           WHERE v.Status = 'available' AND i.Expiry_Date > CURDATE()
+           WHERE v.Status = 'available'
+             AND EXISTS (SELECT 1 FROM INSURANCE_POLICY i
+                         WHERE i.Vehicle_ID = v.Vehicle_ID
+                           AND i.Expiry_Date > CURDATE())
            ORDER BY v.Make, v.Model""")
     drivers = query(
         """SELECT d.Driver_ID, d.First_Name, d.Last_Name

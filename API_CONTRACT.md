@@ -158,7 +158,8 @@ Page gets:    vehicle.Vehicle_ID, vehicle.Make, vehicle.Model, vehicle.Daily_Rat
 Form sends:   POST /rent/<vehicle_id>
               start_date, end_date, is_chauffeur (true or false)
 After submit: goes to /rentals/<rental_id>/confirmation
-Errors:       'Your driving license has expired', 'Vehicle not available' as red flash messages
+Errors:       'Your driving license has expired', 'Vehicle not available',
+              'End date cannot be before start date' as red flash messages
 ```
 
 ### Confirmation

@@ -3,7 +3,7 @@ from flask_login import current_user, login_user, logout_user
 from pymysql.err import IntegrityError
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from app.auth import User
+from app.auth import User, role_required
 from app.db import query, transaction
 from app.forms import LoginForm, RegisterForm
 
@@ -100,3 +100,30 @@ def logout():
     logout_user()
     flash('You have been logged out.', 'success')
     return redirect(url_for('main.landing'))
+
+
+@bp.route('/customer')
+@role_required('customer')
+def dashboard():
+    customer = query('SELECT * FROM CUSTOMER WHERE Customer_ID = %s',
+                     (current_user.customer_id,), one=True)
+    active_rental = query(
+        """SELECT r.Rental_ID, r.Due_Date, v.Make, v.Model, v.Plate_Number
+           FROM RENTAL r
+           JOIN VEHICLE v ON v.Vehicle_ID = r.Vehicle_ID
+           WHERE r.Customer_ID = %s AND r.Return_Date IS NULL
+           ORDER BY r.Due_Date
+           LIMIT 1""",
+        (current_user.customer_id,), one=True)
+    recent_rentals = query(
+        """SELECT r.Rental_ID, r.Rental_Date, r.Due_Date, v.Make, v.Model
+           FROM RENTAL r
+           JOIN VEHICLE v ON v.Vehicle_ID = r.Vehicle_ID
+           WHERE r.Customer_ID = %s
+           ORDER BY r.Rental_Date DESC, r.Rental_ID DESC
+           LIMIT 5""",
+        (current_user.customer_id,))
+
+    return render_template('customer/dashboard.html', customer=customer,
+                           active_rental=active_rental,
+                           recent_rentals=recent_rentals)
