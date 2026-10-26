@@ -20,7 +20,9 @@ def is_driver_free(driver_id):
 
 def has_active_maintenance(vehicle_id):
     row = query(
-        "SELECT 1 FROM MAINTENANCE WHERE Vehicle_ID = %s AND Status = 'in_progress'",
+        """SELECT 1 FROM MAINTENANCE
+           WHERE Vehicle_ID = %s AND Status IN ('scheduled', 'in_progress')
+           LIMIT 1""",
         (vehicle_id,), one=True)
     return row is not None
 
