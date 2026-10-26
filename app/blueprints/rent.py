@@ -8,7 +8,7 @@ from app.auth import role_required
 from app.config import TIER_DISCOUNTS
 from app.db import execute, query, transaction
 from app.forms import RentForm
-from app.services.pricing import rental_days, total_cost
+from app.services.pricing import money, rental_days, total_cost
 from app.services.rules import customer_license_valid, is_driver_free, is_vehicle_available
 
 bp = Blueprint('rent', __name__)
@@ -20,8 +20,8 @@ def vehicles():
     make = (request.args.get('make') or '').strip()
     max_price = request.args.get('max_price', type=float)
 
-    sql = """SELECT v.Vehicle_ID, v.Make, v.Model, v.Year,
-                    v.Daily_Rate, v.Plate_Number
+    sql = """SELECT v.Vehicle_ID, v.VIN, v.Plate_Number, v.Make, v.Model, v.Year,
+                    v.Daily_Rate, v.Status
              FROM VEHICLE v
              WHERE v.Status = 'available'
                AND EXISTS (SELECT 1 FROM INSURANCE_POLICY i
@@ -91,7 +91,8 @@ def rent(vehicle_id):
 
     discount_percent = int(TIER_DISCOUNTS[customer['Tier']] * 100)
     return render_template('customer/rent.html', vehicle=vehicle, customer=customer,
-                           form=form, discount_percent=discount_percent)
+                           form=form, discount_percent=discount_percent,
+                           today=date.today())
 
 
 @bp.route('/rentals/<int:rental_id>/confirmation')
@@ -112,6 +113,33 @@ def confirmation(rental_id):
 
     return render_template('customer/confirmation.html', rental=rental,
                            vehicle=vehicle, driver=driver)
+
+
+# B2 owns /my-rentals in the README split. This read-only page is a stopgap so
+# the customer navigation is complete for the presentation.
+@bp.route('/my-rentals')
+@role_required('customer')
+def my_rentals():
+    rentals = query(
+        """SELECT r.Rental_ID, r.Rental_Date, r.Due_Date, r.Return_Date,
+                  r.Total_Cost, r.Late_Fee, v.Make, v.Model
+           FROM RENTAL r
+           JOIN VEHICLE v ON v.Vehicle_ID = r.Vehicle_ID
+           WHERE r.Customer_ID = %s
+           ORDER BY r.Rental_Date DESC, r.Rental_ID DESC""",
+        (current_user.customer_id,))
+
+    today = date.today()
+    for row in rentals:
+        row['amount_due'] = money((row['Total_Cost'] or 0) + (row['Late_Fee'] or 0))
+        if row['Return_Date'] is not None:
+            row['status'] = 'returned'
+        elif row['Due_Date'] < today:
+            row['status'] = 'overdue'
+        else:
+            row['status'] = 'active'
+
+    return render_template('customer/my_rentals.html', rentals=rentals)
 
 
 def walkin_page():

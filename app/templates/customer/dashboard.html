@@ -1,0 +1,62 @@
+{% extends "shared/base.html" %}
+{% block title %}Dashboard | Car Rental{% endblock %}
+{% block nav %}{% include "customer/_nav.html" %}{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+<p>Welcome back, {{ customer.First_Name }}. You are a
+   <span class="tag">{{ customer.Tier }}</span> customer.</p>
+
+<div class="stats">
+  <div class="card"><h3>{{ 1 if active_rental else 0 }}</h3><p>Active rental</p></div>
+  <div class="card"><h3>{{ rental_count }}</h3><p>Total rentals</p></div>
+  <div class="card"><h3>{{ available_count }}</h3><p>Cars available</p></div>
+</div>
+
+{% if active_rental %}
+<div class="card">
+  <h2>Current rental</h2>
+  <p><b>{{ active_rental.Make }} {{ active_rental.Model }}</b>
+     · {{ active_rental.Plate_Number }}</p>
+  <p>Due back on <b>{{ active_rental.Due_Date }}</b>.</p>
+  <a class="btn" href="{{ url_for('rent.my_rentals') }}">View my rentals</a>
+</div>
+{% else %}
+<div class="card">
+  <p>No active rental right now.</p>
+  <a class="btn" href="{{ url_for('rent.vehicles') }}">Browse cars</a>
+</div>
+{% endif %}
+
+<h2>Recent rentals</h2>
+{% if recent_rentals %}
+<table class="list">
+  <tr><th>Ref</th><th>Car</th><th>From</th><th>Due</th><th></th></tr>
+  {% for r in recent_rentals %}
+  <tr>
+    <td>#R-{{ r.Rental_ID }}</td>
+    <td>{{ r.Make }} {{ r.Model }}</td>
+    <td>{{ r.Rental_Date }}</td>
+    <td>{{ r.Due_Date }}</td>
+    <td><a href="{{ url_for('rent.my_rentals') }}">Details</a></td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="muted">No rentals yet.</p>
+{% endif %}
+
+{% if available_cars %}
+<h2>Featured cars</h2>
+<div class="grid">
+  {% for v in available_cars %}
+  <div class="card">
+    <div class="img">🚗</div>
+    <h3>{{ v.Make }} {{ v.Model }}</h3>
+    <p class="muted">{{ v.Year }}</p>
+    <p class="price">KES {{ '{:,.0f}'.format(v.Daily_Rate) }}/day</p>
+    <a class="btn" href="{{ url_for('rent.vehicle_detail', vehicle_id=v.Vehicle_ID) }}">View</a>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

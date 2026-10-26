@@ -114,11 +114,14 @@ Errors:       none
 ```
 Route:        GET /customer
 Who can open: Customer
-Page gets:    customer.Tier,
+Page gets:    customer.First_Name, customer.Tier,
               active_rental - rental.Rental_ID, rental.Due_Date,
               vehicle.Make, vehicle.Model, vehicle.Plate_Number,
               recent_rentals - list of rental.Rental_ID, rental.Rental_Date, rental.Due_Date,
-              vehicle.Make, vehicle.Model
+              vehicle.Make, vehicle.Model,
+              available_cars - list of vehicle.Vehicle_ID, vehicle.Make, vehicle.Model,
+              vehicle.Year, vehicle.Daily_Rate,
+              available_count (integer), rental_count (integer)
 Form sends:   no form
 After submit: n/a
 Errors:       none
@@ -154,7 +157,8 @@ Errors:       'Vehicle not found' as a 404 page
 Route:        GET /rent/<vehicle_id>
 Who can open: Customer
 Page gets:    vehicle.Vehicle_ID, vehicle.Make, vehicle.Model, vehicle.Daily_Rate,
-              customer.Tier, discount_percent
+              vehicle.Year, vehicle.Plate_Number,
+              customer.Tier, discount_percent, today
 Form sends:   POST /rent/<vehicle_id>
               start_date, end_date, is_chauffeur (true or false)
 After submit: goes to /rentals/<rental_id>/confirmation
@@ -182,6 +186,7 @@ Who can open: Customer
 Page gets:    rentals - list of
               rental.Rental_ID, rental.Rental_Date, rental.Due_Date, rental.Return_Date,
               rental.Total_Cost, rental.Late_Fee, amount_due,
+              status (derived: active, overdue, returned),
               vehicle.Make, vehicle.Model
 Form sends:   no form
 After submit: n/a
@@ -198,7 +203,9 @@ Page gets:    customer.First_Name, customer.Last_Name, customer.Email, customer.
 Form sends:   POST /profile
               phones (list of phone numbers)
 After submit: saves and returns to /profile
-Errors:       'Phone number must be unique for you', success shown as a green flash message
+Errors:       'Phone number must be unique for you',
+              'Phone numbers must be 20 characters or fewer',
+              success shown as a green flash message
 ```
 
 ---

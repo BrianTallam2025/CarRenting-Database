@@ -1,0 +1,31 @@
+{% extends "shared/base.html" %}
+{% block title %}My profile | Car Rental{% endblock %}
+{% block nav %}{% include "customer/_nav.html" %}{% endblock %}
+{% block content %}
+<h1>My profile</h1>
+<div class="card">
+  <table>
+    <tr><th>Name</th><td>{{ customer.First_Name }} {{ customer.Last_Name }}</td></tr>
+    <tr><th>Email</th><td>{{ customer.Email }}</td></tr>
+    <tr><th>National ID</th><td>{{ customer.National_ID }}</td></tr>
+    <tr><th>License number</th><td>{{ customer.License_Number }}</td></tr>
+    <tr><th>License expiry</th><td>{{ customer.License_Expiry }}</td></tr>
+    <tr><th>Tier</th><td><span class="tag">{{ customer.Tier }}</span></td></tr>
+  </table>
+  <p class="muted">To change your name, email or license details, contact the rental desk.</p>
+</div>
+
+<h2>Phone numbers</h2>
+<form method="post" action="{{ url_for('accounts.profile') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% set slots = [3, phones|length + 1]|max %}
+  {% for i in range(slots) %}
+  <label>Phone {{ i + 1 }}
+    <input name="phones" maxlength="20"
+           value="{{ phones[i] if i < phones|length else '' }}"
+           placeholder="07xx xxx xxx">
+  </label>
+  {% endfor %}
+  <button class="btn" type="submit">Save changes</button>
+</form>
+{% endblock %}

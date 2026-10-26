@@ -1,0 +1,63 @@
+{% extends "shared/base.html" %}
+{% block title %}Rent {{ vehicle.Make }} {{ vehicle.Model }} | Car Rental{% endblock %}
+{% block nav %}{% include "customer/_nav.html" %}{% endblock %}
+{% block content %}
+<h1>Rent a car</h1>
+<div class="card">
+  <h2>{{ vehicle.Make }} {{ vehicle.Model }}</h2>
+  <p class="muted">{{ vehicle.Year }} · {{ vehicle.Plate_Number }} ·
+     KES {{ '{:,.0f}'.format(vehicle.Daily_Rate) }}/day</p>
+  <p>Tier: <span class="tag">{{ customer.Tier }}</span>
+     {% if discount_percent %} · {{ discount_percent }}% discount{% endif %}</p>
+
+  <form method="post" action="{{ url_for('rent.rent', vehicle_id=vehicle.Vehicle_ID) }}">
+    {{ form.hidden_tag() }}
+    <label>{{ form.start_date.label.text }}
+      {{ form.start_date(min=today, required=true) }}
+    </label>
+    <label>{{ form.end_date.label.text }}
+      {{ form.end_date(min=today, required=true) }}
+    </label>
+    <label class="check">
+      {{ form.is_chauffeur() }} {{ form.is_chauffeur.label.text }}
+    </label>
+    <p class="muted">Need a driver? Tick the box and the desk will assign one before pickup.</p>
+    <div class="total">
+      Days: <span id="days">0</span> ·
+      Estimated total: KES <span id="estimate">0.00</span>
+      {% if discount_percent %}<span class="muted">(includes {{ discount_percent }}% {{ customer.Tier }} discount)</span>{% endif %}
+    </div>
+    {{ form.submit(class_='btn') }}
+  </form>
+  <p><a class="btn alt" href="{{ url_for('rent.vehicle_detail', vehicle_id=vehicle.Vehicle_ID) }}">Back to details</a></p>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  const rate = {{ vehicle.Daily_Rate|float }};
+  const discount = {{ discount_percent }} / 100;
+  const start = document.getElementById('start_date');
+  const end = document.getElementById('end_date');
+  const daysOut = document.getElementById('days');
+  const estimateOut = document.getElementById('estimate');
+
+  function updateEstimate() {
+    if (!start.value || !end.value) {
+      daysOut.textContent = '0';
+      estimateOut.textContent = '0.00';
+      return;
+    }
+    const days = Math.max(1, Math.round((new Date(end.value) - new Date(start.value)) / 86400000));
+    const total = rate * days * (1 - discount);
+    daysOut.textContent = days;
+    estimateOut.textContent = total.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  start.addEventListener('change', updateEstimate);
+  end.addEventListener('change', updateEstimate);
+  updateEstimate();
+</script>
+{% endblock %}

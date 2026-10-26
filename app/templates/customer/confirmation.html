@@ -1,0 +1,29 @@
+{% extends "shared/base.html" %}
+{% block title %}Rental confirmed | Car Rental{% endblock %}
+{% block nav %}{% include "customer/_nav.html" %}{% endblock %}
+{% block content %}
+<h1>Rental confirmed</h1>
+<div class="card">
+  <h2>✅ Thank you!</h2>
+  <p>Your booking was received. Reference: <b>#R-{{ rental.Rental_ID }}</b></p>
+  <table>
+    <tr><th>Car</th>
+      <td>{% if vehicle %}{{ vehicle.Make }} {{ vehicle.Model }} · {{ vehicle.Plate_Number }}{% else %}—{% endif %}</td>
+    </tr>
+    <tr><th>Pick-up</th><td>{{ rental.Rental_Date }}</td></tr>
+    <tr><th>Due back</th><td>{{ rental.Due_Date }}</td></tr>
+    <tr><th>Driver</th>
+      <td>{% if driver %}{{ driver.First_Name }} {{ driver.Last_Name }}{% elif rental.Is_Chauffeur %}Chauffeur to be assigned{% else %}Self-drive{% endif %}</td>
+    </tr>
+    <tr><th>Total</th><td>KES {{ '{:,.2f}'.format(rental.Total_Cost) }}</td></tr>
+    {% if rental.Late_Fee and rental.Late_Fee > 0 %}
+    <tr><th>Late fee</th><td>KES {{ '{:,.2f}'.format(rental.Late_Fee) }}</td></tr>
+    {% endif %}
+  </table>
+  <p class="muted">Pick up the car at the front desk on your start date with your ID and license.</p>
+</div>
+<p class="actions">
+  <a class="btn" href="{{ url_for('rent.my_rentals') }}">View my rentals</a>
+  <a class="btn alt" href="{{ url_for('rent.vehicles') }}">Browse more cars</a>
+</p>
+{% endblock %}

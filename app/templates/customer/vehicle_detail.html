@@ -1,0 +1,26 @@
+{% extends "shared/base.html" %}
+{% block title %}{{ vehicle.Make }} {{ vehicle.Model }} | Car Rental{% endblock %}
+{% block nav %}{% include "customer/_nav.html" %}{% endblock %}
+{% block content %}
+<h1>{{ vehicle.Make }} {{ vehicle.Model }}</h1>
+<div class="detail">
+  <div class="img">🚗</div>
+  <table>
+    <tr><th>Year</th><td>{{ vehicle.Year }}</td></tr>
+    <tr><th>Plate</th><td>{{ vehicle.Plate_Number }}</td></tr>
+    <tr><th>VIN</th><td>{{ vehicle.VIN }}</td></tr>
+    <tr><th>Daily rate</th><td>KES {{ '{:,.0f}'.format(vehicle.Daily_Rate) }}</td></tr>
+    <tr><th>Status</th>
+      <td><span class="tag {{ 'ok' if vehicle.Status == 'available' else 'no' }}">{{ vehicle.Status }}</span></td>
+    </tr>
+  </table>
+</div>
+<p class="actions">
+  {% if vehicle.Status == 'available' %}
+  <a class="btn" href="{{ url_for('rent.rent', vehicle_id=vehicle.Vehicle_ID) }}">Rent this car</a>
+  {% else %}
+  <span class="btn off">Not available</span>
+  {% endif %}
+  <a class="btn alt" href="{{ url_for('rent.vehicles') }}">Back to browse</a>
+</p>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "shared/base.html" %}
+{% block title %}{{ code }} | Car Rental{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>{{ code }}</h1>
+  <p>{% if code == 404 %}We could not find that page.{% else %}Something went wrong. Please try again.{% endif %}</p>
+  <p><a class="btn" href="{{ url_for('main.landing') }}">Back to home</a></p>
+</div>
+{% endblock %}

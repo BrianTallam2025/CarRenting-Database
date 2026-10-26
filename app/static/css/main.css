@@ -1,0 +1,92 @@
+/* Shared base styles. F1 owns main.css; this is a temporary implementation
+   built from the frontend prototype so every page has a usable baseline. */
+* { box-sizing: border-box; }
+body { font-family: system-ui, sans-serif; margin: 0; background: #f5f6f8; color: #222; }
+a { color: #2563eb; }
+header {
+  background: #1f2937;
+  color: #fff;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+}
+header .brand { font-weight: 700; font-size: 1.05rem; }
+header .brand a { color: #fff; text-decoration: none; }
+nav a { color: #cbd5e1; margin-left: 14px; text-decoration: none; }
+nav a.on, nav a:hover { color: #fff; font-weight: 600; }
+main { max-width: 960px; margin: 20px auto; padding: 0 16px; }
+h1 { margin-top: 0; }
+.grid, .stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 14px;
+}
+.stats { margin-bottom: 16px; }
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 1px 3px #0002;
+}
+.img {
+  font-size: 48px;
+  background: #eef;
+  border-radius: 8px;
+  text-align: center;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+.price { font-weight: 700; color: #0a7; }
+.btn {
+  display: inline-block;
+  background: #2563eb;
+  color: #fff;
+  border: 0;
+  padding: 9px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 15px;
+}
+.btn.alt { background: #64748b; }
+.btn.off { background: #aaa; pointer-events: none; }
+input.btn, button.btn { width: auto; display: inline-block; margin-top: 0; }
+.tag {
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  background: #e5e7eb;
+}
+.tag.ok { background: #d1fae5; }
+.tag.no { background: #fee2e2; }
+form { background: #fff; padding: 18px; border-radius: 10px; max-width: 480px; }
+label { display: block; margin-bottom: 12px; font-size: 14px; }
+input, select, textarea {
+  display: block;
+  width: 100%;
+  padding: 9px;
+  margin-top: 4px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 15px;
+}
+.bar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.total {
+  background: #eef6ff;
+  padding: 12px;
+  border-radius: 6px;
+  margin: 12px 0;
+  font-weight: 600;
+}
+table { width: 100%; border-collapse: collapse; background: #fff; }
+th, td { text-align: left; padding: 10px; border-bottom: 1px solid #e5e7eb; }
+.muted { color: #64748b; font-size: 14px; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.flashes { margin-bottom: 14px; }
+.flash { padding: 10px 12px; border-radius: 6px; margin: 0 0 8px; }
+.flash.error { background: #fee2e2; color: #991b1b; }
+.flash.success { background: #d1fae5; color: #065f46; }
+@media (max-width: 600px) { .list { display: block; overflow-x: auto; } }

@@ -1,0 +1,10 @@
+{% extends "shared/base.html" %}
+{% block title %}No access | Car Rental{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>No access</h1>
+  <p>Your role ({{ current_user.role if current_user.is_authenticated else 'guest' }})
+     cannot open this page.</p>
+  <p><a class="btn" href="{{ url_for('main.landing') }}">Back to home</a></p>
+</div>
+{% endblock %}

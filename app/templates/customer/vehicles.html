@@ -1,0 +1,34 @@
+{% extends "shared/base.html" %}
+{% block title %}Browse cars | Car Rental{% endblock %}
+{% block nav %}{% include "customer/_nav.html" %}{% endblock %}
+{% block content %}
+<h1>Browse cars</h1>
+<form class="filter" method="get" action="{{ url_for('rent.vehicles') }}">
+  <label>Make
+    <input name="make" value="{{ request.args.get('make', '') }}" placeholder="e.g. Toyota">
+  </label>
+  <label>Max price / day
+    <input type="number" name="max_price" min="0" step="100"
+           value="{{ request.args.get('max_price', '') }}" placeholder="e.g. 5000">
+  </label>
+  <button class="btn" type="submit">Filter</button>
+  <a class="btn alt" href="{{ url_for('rent.vehicles') }}">Clear</a>
+</form>
+
+{% if vehicles %}
+<div class="grid">
+  {% for v in vehicles %}
+  <div class="card">
+    <div class="img">🚗</div>
+    <h3>{{ v.Make }} {{ v.Model }}</h3>
+    <p class="muted">{{ v.Year }} · {{ v.Plate_Number }}</p>
+    <p class="price">KES {{ '{:,.0f}'.format(v.Daily_Rate) }}/day</p>
+    <span class="tag ok">{{ v.Status }}</span>
+    <p><a class="btn" href="{{ url_for('rent.vehicle_detail', vehicle_id=v.Vehicle_ID) }}">View</a></p>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card"><p>No cars match those filters.</p></div>
+{% endif %}
+{% endblock %}

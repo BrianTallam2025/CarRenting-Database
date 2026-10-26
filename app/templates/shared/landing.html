@@ -1,0 +1,31 @@
+{% extends "shared/base.html" %}
+{% block title %}Car Rental{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Drive what fits the trip.</h1>
+  <p>Browse the fleet, pick your dates, and rent in minutes. Self-drive or with a chauffeur.</p>
+  <p class="actions">
+    <a class="btn" href="{{ url_for('accounts.login') }}">Log in to rent</a>
+    <a class="btn alt" href="{{ url_for('accounts.register') }}">Create an account</a>
+  </p>
+</section>
+
+{% if featured_vehicles %}
+<h2>Available now</h2>
+<div class="grid">
+  {% for v in featured_vehicles %}
+  <div class="card">
+    <div class="img">🚗</div>
+    <h3>{{ v.Make }} {{ v.Model }}</h3>
+    <p class="muted">{{ v.Year }}</p>
+    <p class="price">KES {{ '{:,.0f}'.format(v.Daily_Rate) }}/day</p>
+    {% if current_user.is_authenticated and current_user.role == 'customer' %}
+    <a class="btn" href="{{ url_for('rent.vehicle_detail', vehicle_id=v.Vehicle_ID) }}">View</a>
+    {% else %}
+    <a class="btn" href="{{ url_for('accounts.login') }}">Log in to rent</a>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,7 @@
+<nav>
+  <a href="{{ url_for('accounts.dashboard') }}" class="{% if request.endpoint == 'accounts.dashboard' %}on{% endif %}">Dashboard</a>
+  <a href="{{ url_for('rent.vehicles') }}" class="{% if request.endpoint in ['rent.vehicles', 'rent.vehicle_detail', 'rent.rent'] %}on{% endif %}">Browse cars</a>
+  <a href="{{ url_for('rent.my_rentals') }}" class="{% if request.endpoint == 'rent.my_rentals' %}on{% endif %}">My rentals</a>
+  <a href="{{ url_for('accounts.profile') }}" class="{% if request.endpoint == 'accounts.profile' %}on{% endif %}">My profile</a>
+  <a href="{{ url_for('accounts.logout') }}">Log out</a>
+</nav>

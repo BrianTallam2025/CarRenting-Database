@@ -1,0 +1,28 @@
+{% extends "shared/base.html" %}
+{% block title %}My rentals | Car Rental{% endblock %}
+{% block nav %}{% include "customer/_nav.html" %}{% endblock %}
+{% block content %}
+<h1>My rentals</h1>
+{% if rentals %}
+<table class="list">
+  <tr>
+    <th>Ref</th><th>Car</th><th>From</th><th>Due</th>
+    <th>Total</th><th>Late fee</th><th>Amount due</th><th>Status</th>
+  </tr>
+  {% for r in rentals %}
+  <tr>
+    <td>#R-{{ r.Rental_ID }}</td>
+    <td>{{ r.Make }} {{ r.Model }}</td>
+    <td>{{ r.Rental_Date }}</td>
+    <td>{{ r.Due_Date }}</td>
+    <td>KES {{ '{:,.2f}'.format(r.Total_Cost) }}</td>
+    <td>KES {{ '{:,.2f}'.format(r.Late_Fee or 0) }}</td>
+    <td>KES {{ '{:,.2f}'.format(r.amount_due) }}</td>
+    <td><span class="tag {% if r.status == 'active' %}ok{% elif r.status == 'overdue' %}no{% endif %}">{{ r.status }}</span></td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<div class="card"><p>No rentals yet. <a href="{{ url_for('rent.vehicles') }}">Browse cars</a>.</p></div>
+{% endif %}
+{% endblock %}
