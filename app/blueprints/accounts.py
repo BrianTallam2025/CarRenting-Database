@@ -29,35 +29,65 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         email = form.email.data.strip().lower()
+        national_id = form.national_id.data.strip()
+        license_number = form.license_number.data.strip()
 
         if query('SELECT 1 FROM USER_ACCOUNT WHERE Email = %s', (email,), one=True):
             flash('Email already registered', 'error')
             return redirect(url_for('accounts.register'))
-        if query('SELECT 1 FROM CUSTOMER WHERE Email = %s', (email,), one=True):
+
+        # An agent may have created this person as a walk-in customer already.
+        # Link that customer record to the new login instead of creating a duplicate.
+        existing_customer = query(
+            """SELECT c.Customer_ID, u.User_ID
+               FROM CUSTOMER c
+               LEFT JOIN USER_ACCOUNT u ON u.Customer_ID = c.Customer_ID
+               WHERE c.Email = %s
+                 AND c.National_ID = %s
+                 AND c.License_Number = %s""",
+            (email, national_id, license_number),
+            one=True,
+        )
+        if existing_customer and existing_customer['User_ID'] is not None:
             flash('Email already registered', 'error')
             return redirect(url_for('accounts.register'))
-        if query('SELECT 1 FROM CUSTOMER WHERE License_Number = %s',
-                 (form.license_number.data,), one=True):
-            flash('License number already used', 'error')
-            return redirect(url_for('accounts.register'))
-        if query('SELECT 1 FROM CUSTOMER WHERE National_ID = %s',
-                 (form.national_id.data,), one=True):
-            flash('National ID already used', 'error')
-            return redirect(url_for('accounts.register'))
+
+        if existing_customer is None:
+            if query('SELECT 1 FROM CUSTOMER WHERE Email = %s', (email,), one=True):
+                flash('Email already registered', 'error')
+                return redirect(url_for('accounts.register'))
+            if query('SELECT 1 FROM CUSTOMER WHERE License_Number = %s',
+                     (license_number,), one=True):
+                flash('License number already used', 'error')
+                return redirect(url_for('accounts.register'))
+            if query('SELECT 1 FROM CUSTOMER WHERE National_ID = %s',
+                     (national_id,), one=True):
+                flash('National ID already used', 'error')
+                return redirect(url_for('accounts.register'))
 
         password_hash = generate_password_hash(form.password.data)
         try:
             with transaction() as conn:
                 with conn.cursor() as cur:
-                    cur.execute(
-                        """INSERT INTO CUSTOMER
-                           (National_ID, First_Name, Last_Name, Email,
-                            License_Number, License_Expiry)
-                           VALUES (%s, %s, %s, %s, %s, %s)""",
-                        (form.national_id.data.strip(), form.first_name.data.strip(),
-                         form.last_name.data.strip(), email,
-                         form.license_number.data.strip(), form.license_expiry.data))
-                    customer_id = cur.lastrowid
+                    if existing_customer is None:
+                        cur.execute(
+                            """INSERT INTO CUSTOMER
+                               (National_ID, First_Name, Last_Name, Email,
+                                License_Number, License_Expiry)
+                               VALUES (%s, %s, %s, %s, %s, %s)""",
+                            (national_id, form.first_name.data.strip(),
+                             form.last_name.data.strip(), email,
+                             license_number, form.license_expiry.data))
+                        customer_id = cur.lastrowid
+                    else:
+                        customer_id = existing_customer['Customer_ID']
+                        cur.execute(
+                            """UPDATE CUSTOMER
+                               SET First_Name = %s, Last_Name = %s, Email = %s,
+                                   License_Expiry = GREATEST(License_Expiry, %s)
+                               WHERE Customer_ID = %s""",
+                            (form.first_name.data.strip(), form.last_name.data.strip(),
+                             email, form.license_expiry.data, customer_id))
                     cur.execute(
                         """INSERT INTO USER_ACCOUNT
                            (Email, Password_Hash, Role, Customer_ID)
@@ -69,7 +99,11 @@ def register():
 
         account = query('SELECT * FROM USER_ACCOUNT WHERE Email = %s', (email,), one=True)
         login_user(User(account))
-        flash('Welcome! Your account is ready.', 'success')
+        if existing_customer is None:
+            flash('Welcome! Your account is ready.', 'success')
+        else:
+            flash('Your existing customer record is now linked to your login.',
+                  'success')
         return redirect('/customer')
 
     return render_template('shared/register.html', form=form)

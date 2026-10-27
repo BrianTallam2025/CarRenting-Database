@@ -56,8 +56,10 @@ Page gets:    nothing (form only)
 Form sends:   POST /register
               first_name, last_name, email, password,
               national_id, license_number, license_expiry
-After submit: logs the new customer in and goes to /customer
-Errors:       'Email already registered', 'License number already used' as red flash messages
+After submit: creates the customer account (or links an existing walk-in customer
+              when email, national ID and license all match), logs in, goes to /customer
+Errors:       'Email already registered', 'License number already used',
+              'National ID already used' as red flash messages
 ```
 
 ### No access (403)
