@@ -11,10 +11,12 @@ from app.services.rules import has_active_maintenance
 bp = Blueprint('fleet', __name__)
 
 
-def _vehicle_choices():
+def _vehicle_choices(exclude_rented=False):
+    status_filter = "WHERE Status <> 'rented'" if exclude_rented else ''
     vehicles = query(
-        """SELECT Vehicle_ID, Make, Model, Plate_Number
-           FROM VEHICLE ORDER BY Make, Model, Plate_Number"""
+        f"""SELECT Vehicle_ID, Make, Model, Plate_Number, Status
+            FROM VEHICLE {status_filter}
+            ORDER BY Make, Model, Plate_Number"""
     )
     return [
         (
@@ -28,15 +30,15 @@ def _vehicle_choices():
 @bp.route('/fleet')
 @role_required('fleet_manager')
 def dashboard():
-    vehicle_counts = query(
-        """SELECT Status, COUNT(*) AS Count
-           FROM VEHICLE GROUP BY Status ORDER BY Status"""
+    counts = query(
+        """SELECT
+               COALESCE(SUM(Status = 'available'), 0) AS available,
+               COALESCE(SUM(Status = 'rented'), 0) AS rented,
+               COALESCE(SUM(Status = 'maintenance'), 0) AS maintenance
+           FROM VEHICLE""",
+        one=True,
     )
-    driver_counts = query(
-        """SELECT Status, COUNT(*) AS Count
-           FROM DRIVER GROUP BY Status ORDER BY Status"""
-    )
-    expiring_insurance = query(
+    expiring_policies = query(
         """SELECT i.*, v.Make, v.Model, v.Plate_Number
            FROM INSURANCE_POLICY i
            JOIN VEHICLE v ON v.Vehicle_ID = i.Vehicle_ID
@@ -45,9 +47,8 @@ def dashboard():
     )
     return render_template(
         'fleet/dashboard.html',
-        vehicle_counts=vehicle_counts,
-        driver_counts=driver_counts,
-        expiring_insurance=expiring_insurance,
+        counts=counts,
+        expiring_policies=expiring_policies,
     )
 
 
@@ -253,14 +254,14 @@ def maintenance():
                     END,
                     m.Start_Date DESC, m.Maintenance_ID DESC"""
     )
-    return render_template('fleet/maintenance.html', maintenance_jobs=jobs)
+    return render_template('fleet/maintenance.html', jobs=jobs)
 
 
 @bp.route('/fleet/maintenance/new', methods=['GET', 'POST'])
 @role_required('fleet_manager')
 def new_maintenance():
     form = MaintenanceForm()
-    form.vehicle_id.choices = _vehicle_choices()
+    form.vehicle_id.choices = _vehicle_choices(exclude_rented=True)
     if form.validate_on_submit():
         if form.end_date.data and form.end_date.data < form.start_date.data:
             flash('The expected end date cannot be before the start date.', 'error')
@@ -310,7 +311,7 @@ def new_maintenance():
     return render_template(
         'fleet/maintenance_form.html',
         form=form,
-        vehicles=_vehicle_choices(),
+        vehicles=_vehicle_choices(exclude_rented=True),
     )
 
 

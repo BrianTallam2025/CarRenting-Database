@@ -11,15 +11,25 @@ from app.services.pricing import late_fee
 
 bp = Blueprint('returns', __name__)
 
-RENTAL_SELECT = """SELECT r.*, v.Make, v.Model, v.Plate_Number, v.Daily_Rate,
-                          c.First_Name, c.Last_Name, c.Email AS Customer_Email,
+RENTAL_STATUS = """CASE
+                      WHEN r.Return_Date IS NOT NULL THEN 'returned'
+                      WHEN r.Due_Date < CURDATE() THEN 'overdue'
+                      ELSE 'active'
+                    END"""
+
+RENTAL_SELECT = f"""SELECT r.*, v.Make, v.Model, v.Plate_Number, v.Daily_Rate,
+                          c.First_Name AS Customer_First_Name,
+                          c.Last_Name AS Customer_Last_Name,
+                          c.Email AS Customer_Email,
+                          c.Tier AS Customer_Tier,
                           d.First_Name AS Driver_First_Name,
-                          d.Last_Name AS Driver_Last_Name
+                          d.Last_Name AS Driver_Last_Name,
+                          {RENTAL_STATUS} AS status,
+                          DATEDIFF(CURDATE(), r.Due_Date) AS days_late
                    FROM RENTAL r
                    JOIN CUSTOMER c ON c.Customer_ID = r.Customer_ID
                    LEFT JOIN VEHICLE v ON v.Vehicle_ID = r.Vehicle_ID
                    LEFT JOIN DRIVER d ON d.Driver_ID = r.Driver_ID"""
-
 
 def _search_pattern(value):
     return f'%{value.strip()}%'
@@ -29,7 +39,9 @@ def _search_pattern(value):
 @role_required('customer')
 def my_rentals():
     rentals = query(
-        """SELECT r.*, v.Make, v.Model, v.Plate_Number
+        f"""SELECT r.*, v.Make, v.Model, v.Plate_Number,
+                  r.Total_Cost + r.Late_Fee AS amount_due,
+                  {RENTAL_STATUS} AS status
            FROM RENTAL r
            LEFT JOIN VEHICLE v ON v.Vehicle_ID = r.Vehicle_ID
            WHERE r.Customer_ID = %s
@@ -42,41 +54,50 @@ def my_rentals():
 @bp.route('/agent')
 @role_required('rental_agent')
 def dashboard():
-    summary = query(
+    counts = query(
         """SELECT
                COALESCE(SUM(CASE WHEN Return_Date IS NULL THEN 1 ELSE 0 END), 0)
-                   AS active_rentals,
+                   AS active,
+               COALESCE(SUM(CASE WHEN Return_Date IS NULL AND Due_Date = CURDATE()
+                                 THEN 1 ELSE 0 END), 0) AS due_today,
                COALESCE(SUM(CASE WHEN Return_Date IS NULL AND Due_Date < CURDATE()
-                                 THEN 1 ELSE 0 END), 0) AS overdue_rentals,
-               COALESCE(SUM(CASE WHEN Return_Date >= CURDATE() THEN 1 ELSE 0 END), 0)
-                   AS returned_today
+                                 THEN 1 ELSE 0 END), 0) AS overdue,
+               (SELECT COUNT(*) FROM VEHICLE WHERE Status = 'available') AS available
            FROM RENTAL""",
         one=True,
     )
-    recent_rentals = query(
+    due_today = query(
         f"""{RENTAL_SELECT}
-            ORDER BY r.Rental_ID DESC
-            LIMIT 10"""
+            WHERE r.Return_Date IS NULL AND r.Due_Date = CURDATE()
+            ORDER BY r.Due_Date, r.Rental_ID"""
+    )
+    overdue = query(
+        f"""{RENTAL_SELECT}
+            WHERE r.Return_Date IS NULL AND r.Due_Date < CURDATE()
+            ORDER BY r.Due_Date, r.Rental_ID"""
     )
     return render_template(
         'agent/dashboard.html',
-        summary=summary,
-        rentals=recent_rentals,
+        counts=counts,
+        due_today=due_today,
+        overdue=overdue,
     )
 
 
 @bp.route('/agent/rentals')
 @role_required('rental_agent')
 def rentals():
-    search = request.args.get('q', '').strip()
+    search = request.args.get('search', request.args.get('q', '')).strip()
     status = request.args.get('status', 'all')
     conditions = []
     params = []
 
     if status == 'active':
-        conditions.append('r.Return_Date IS NULL')
+        conditions.extend(('r.Return_Date IS NULL', 'r.Due_Date >= CURDATE()'))
     elif status == 'returned':
         conditions.append('r.Return_Date IS NOT NULL')
+    elif status == 'overdue':
+        conditions.extend(('r.Return_Date IS NULL', 'r.Due_Date < CURDATE()'))
     if search:
         pattern = _search_pattern(search)
         conditions.append(
@@ -107,14 +128,48 @@ def rentals():
 @bp.route('/agent/rentals/<int:rental_id>')
 @role_required('rental_agent')
 def rental_detail(rental_id):
-    rental = query(
+    row = query(
         f'{RENTAL_SELECT} WHERE r.Rental_ID = %s',
         (rental_id,),
         one=True,
     )
-    if rental is None:
+    if row is None:
         abort(404)
-    return render_template('agent/rental_detail.html', rental=rental)
+    rental = {
+        key: row[key]
+        for key in (
+            'Rental_ID',
+            'Rental_Date',
+            'Due_Date',
+            'Return_Date',
+            'Is_Chauffeur',
+            'Total_Cost',
+            'Late_Fee',
+        )
+    }
+    customer = {
+        'First_Name': row['Customer_First_Name'],
+        'Last_Name': row['Customer_Last_Name'],
+        'Email': row['Customer_Email'],
+        'Tier': row['Customer_Tier'],
+    }
+    vehicle = {
+        key: row[key]
+        for key in ('Make', 'Model', 'Plate_Number', 'Daily_Rate')
+    }
+    driver = {
+        'First_Name': row['Driver_First_Name'],
+        'Last_Name': row['Driver_Last_Name'],
+    }
+    amount_due = rental['Total_Cost'] + rental['Late_Fee']
+    return render_template(
+        'agent/rental_detail.html',
+        rental=rental,
+        customer=customer,
+        vehicle=vehicle,
+        driver=driver,
+        amount_due=amount_due,
+    )
 
 
 @bp.route('/agent/rentals/<int:rental_id>/return', methods=['GET', 'POST'])
@@ -131,6 +186,30 @@ def process_return(rental_id):
     )
     if rental is None:
         abort(404)
+
+    return_date = rental['Return_Date'] or form.return_date.data or date.today()
+    if rental['Return_Date'] is not None:
+        preview_late_fee = rental['Late_Fee']
+        amount_due = rental['Total_Cost'] + preview_late_fee
+    elif rental['Daily_Rate'] is None:
+        preview_late_fee = None
+        amount_due = None
+    else:
+        preview_late_fee = late_fee(
+            rental['Daily_Rate'],
+            rental['Due_Date'],
+            return_date,
+        )
+        amount_due = rental['Total_Cost'] + preview_late_fee
+    days_late = max(0, (return_date - rental['Due_Date']).days)
+    customer = {
+        'First_Name': rental['Customer_First_Name'],
+        'Last_Name': rental['Customer_Last_Name'],
+    }
+    vehicle = {
+        key: rental[key]
+        for key in ('Make', 'Model', 'Daily_Rate')
+    }
 
     if form.validate_on_submit():
         return_date = form.return_date.data
@@ -251,7 +330,17 @@ def process_return(rental_id):
             one=True,
         )
 
-    return render_template('agent/return.html', rental=rental, form=form, today=date.today())
+    return render_template(
+        'agent/return.html',
+        rental=rental,
+        customer=customer,
+        vehicle=vehicle,
+        form=form,
+        today=date.today(),
+        days_late=days_late,
+        late_fee=preview_late_fee,
+        amount_due=amount_due,
+    )
 
 
 @bp.route('/agent/customers')
@@ -265,18 +354,38 @@ def customers():
         where = """WHERE First_Name LIKE %s
                    OR Last_Name LIKE %s
                    OR Email LIKE %s
-                   OR National_ID LIKE %s"""
+                   OR License_Number LIKE %s"""
         params = (pattern, pattern, pattern, pattern)
     customer_rows = query(
-        f"""SELECT Customer_ID, First_Name, Last_Name, Email, National_ID,
-                   License_Number, License_Expiry, Tier
+        f"""SELECT Customer_ID, First_Name, Last_Name, Email, Tier
             FROM CUSTOMER {where}
             ORDER BY Last_Name, First_Name
             LIMIT 200""",
         params,
     )
+    selected_id = request.args.get('selected', type=int)
+    selected = None
+    customer_rentals = []
+    if selected_id is not None:
+        selected = query(
+            """SELECT Customer_ID, First_Name, Last_Name, Tier
+               FROM CUSTOMER WHERE Customer_ID = %s""",
+            (selected_id,),
+            one=True,
+        )
+        if selected is not None:
+            customer_rentals = query(
+                """SELECT r.Rental_ID, r.Rental_Date, r.Due_Date, v.Make, v.Model
+                   FROM RENTAL r
+                   LEFT JOIN VEHICLE v ON v.Vehicle_ID = r.Vehicle_ID
+                   WHERE r.Customer_ID = %s
+                   ORDER BY r.Rental_Date DESC, r.Rental_ID DESC""",
+                (selected_id,),
+            )
     return render_template(
         'agent/customers.html',
         customers=customer_rows,
         search=search,
+        selected=selected,
+        rentals=customer_rentals,
     )
