@@ -911,7 +911,7 @@ Every form must include the CSRF token or it will be rejected:
 ### CSS rules
 
 - F1 owns `static/css/main.css`: colors, fonts, spacing, buttons (`btn`), boxes (`card`), forms (`input`), tables (`table`), badges and flash messages. Use these class names instead of inventing your own.
-- Page-specific parts go in your own file under `static/css/components/`. Shared pages load their component styles from `base.html`; standalone agent and fleet pages link theirs directly.
+- Page-specific parts go in your own file under `static/css/components/`. Pages extend `shared/base.html` and load their component styles in the `head` block.
 - Suggested ownership of components: F2 the car card and tier badge, F3 the data table and confirm pop-up, F4 the status badge and form layout. F1 keeps the menu and flash messages.
 - Design for a phone first. Many users will open this on a phone.
 - Colors and spacing come from CSS variables defined in `main.css`, so one change restyles the whole site.

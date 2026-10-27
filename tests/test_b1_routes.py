@@ -252,6 +252,21 @@ class B1RouteTests(unittest.TestCase):
             with self.subTest(path=path):
                 self.assert_page(path, *markers)
 
+    def test_staff_pages_use_the_shared_base(self):
+        self.login('agent@example.com')
+        body = self.client.get('/agent').get_data(as_text=True)
+        self.assertIn('<footer class="site-footer">', body)
+        self.assertIn('css/components/agent.css', body)
+        self.assertNotIn('temp-header', body)
+
+        self.client.get('/logout')
+        self.login('manager@example.com')
+        body = self.client.get('/fleet').get_data(as_text=True)
+        self.assertIn('<footer class="site-footer">', body)
+        self.assertIn('css/components/fleet.css', body)
+        self.assertIn('href="/fleet/insurance"', body)
+        self.assertNotIn('temp-header', body)
+
     def test_role_blocks(self):
         self.login('customer@example.com')
         for path in ('/driver', '/agent', '/fleet'):

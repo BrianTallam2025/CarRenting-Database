@@ -1,30 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cars | Fleet</title>
-  <!-- F1's shared styles. Missing until main.css is pushed. -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/fleet.css') }}">
-</head>
-<body>
-  <!-- Temporary header and menu so the pages can be opened on their own.
-       Delete this block and use the base template once F1 ships base.html. -->
-  <header class="fleet-temp-header">
-    <strong>Car Rental</strong>
-    <nav aria-label="Fleet">
-      <a href="/fleet">Dashboard</a>
-      <a href="/fleet/vehicles" class="current">Cars</a>
-      <a href="/fleet/insurance">Insurance</a>
-      <a href="/fleet/maintenance">Maintenance</a>
-      <a href="/fleet/drivers">Drivers</a>
-      <a href="/fleet/assignment-history">Change history</a>
-    </nav>
-  </header>
-
-  <main class="fleet-page">
-    {% include "shared/_flash.html" %}
+{% extends "shared/base.html" %}
+{% block title %}Cars | Fleet{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/fleet.css') }}">
+{% endblock %}
+{% block content %}
     <div class="page-top">
       <h1>Cars</h1>
       <a class="btn" href="/fleet/vehicles/new">Add car</a>
@@ -55,6 +34,4 @@
         </table>
       </div>
     </div>
-  </main>
-</body>
-</html>
+{% endblock %}

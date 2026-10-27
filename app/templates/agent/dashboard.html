@@ -1,29 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Agent dashboard | Agent</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/agent.css') }}">
-</head>
-<body>
-  <!-- Temporary header until F1 ships shared/base.html; then use the base template. -->
-  <header class="agent-temp-header">
-    <strong>Car Rental</strong>
-    <nav aria-label="Agent">
-      <a href="/agent" class="current">Dashboard</a>
-      <a href="/agent/rentals">Rentals</a>
-      <a href="/agent/rent">Walk-in</a>
-      <a href="/agent/customers">Customers</a>
-      {% if current_user.role == 'fleet_manager' %}
-      <a href="/fleet/assignment-history">Change history</a>
-      {% endif %}
-    </nav>
-  </header>
-
-  <main class="agent-page">
-    {% include "shared/_flash.html" %}
+{% extends "shared/base.html" %}
+{% block title %}Agent dashboard | Agent{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/agent.css') }}">
+{% endblock %}
+{% block content %}
     <h1>Agent dashboard</h1>
 
     <section class="metrics">
@@ -91,6 +71,4 @@
         </table>
       </div>
     </section>
-  </main>
-</body>
-</html>
+{% endblock %}

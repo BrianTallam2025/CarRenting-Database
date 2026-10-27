@@ -47,9 +47,7 @@ a:hover { color: var(--color-brand-dark); }
 }
 .skip-link:focus { transform: translateY(0); }
 
-header,
-.agent-temp-header,
-.fleet-temp-header {
+header {
   background: #14213d;
   color: #fff;
 }
@@ -82,9 +80,7 @@ nav {
   gap: 0.35rem;
 }
 
-nav a,
-.agent-temp-header a,
-.fleet-temp-header a {
+nav a {
   color: #dbeafe;
   text-decoration: none;
 }
@@ -95,11 +91,7 @@ nav a {
 }
 
 nav a:hover,
-nav a.on,
-.agent-temp-header a:hover,
-.agent-temp-header a.current,
-.fleet-temp-header a:hover,
-.fleet-temp-header a.current {
+nav a.on {
   background: #ffffff1a;
   color: #fff;
 }

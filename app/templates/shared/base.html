@@ -29,6 +29,7 @@
         {% elif current_user.role == 'fleet_manager' %}
           <a href="{{ url_for('fleet.dashboard') }}">Fleet dashboard</a>
           <a href="{{ url_for('fleet.vehicles') }}">Vehicles</a>
+          <a href="{{ url_for('fleet.insurance') }}">Insurance</a>
           <a href="{{ url_for('fleet.maintenance') }}">Maintenance</a>
           <a href="{{ url_for('fleet.drivers') }}">Drivers</a>
           <a href="{{ url_for('assignments.assignment_history') }}">Assignment history</a>

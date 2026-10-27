@@ -1,4 +1,4 @@
-<nav>
+<nav class="site-nav" aria-label="Driver">
   <a href="{{ url_for('driver.current') }}" {% if request.endpoint == 'driver.current' %}class="on" aria-current="page"{% endif %}>Current assignment</a>
   <a href="{{ url_for('driver.history') }}" {% if request.endpoint == 'driver.history' %}class="on" aria-current="page"{% endif %}>Trip history</a>
   <a href="{{ url_for('accounts.logout') }}">Log out</a>

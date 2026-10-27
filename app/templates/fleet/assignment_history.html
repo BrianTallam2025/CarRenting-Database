@@ -1,28 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Assignment history | Fleet</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/agent.css') }}">
-</head>
-<body>
-  <!-- Temporary header until F1 ships shared/base.html; then use the base template. -->
-  <header class="agent-temp-header">
-    <strong>Car Rental</strong>
-    <nav aria-label="Fleet">
-      <a href="/fleet">Dashboard</a>
-      <a href="/fleet/vehicles">Cars</a>
-      <a href="/fleet/insurance">Insurance</a>
-      <a href="/fleet/maintenance">Maintenance</a>
-      <a href="/fleet/drivers">Drivers</a>
-      <a href="/fleet/assignment-history" class="current">Change history</a>
-    </nav>
-  </header>
-
-  <main class="agent-page">
-    {% include "shared/_flash.html" %}
+{% extends "shared/base.html" %}
+{% block title %}Assignment history | Fleet{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/agent.css') }}">
+{% endblock %}
+{% block content %}
     <h1>Assignment history</h1>
 
     <div class="card">
@@ -53,6 +34,4 @@
         </table>
       </div>
     </div>
-  </main>
-</body>
-</html>
+{% endblock %}
