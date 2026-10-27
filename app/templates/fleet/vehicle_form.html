@@ -19,10 +19,12 @@
       <a href="/fleet/insurance">Insurance</a>
       <a href="/fleet/maintenance">Maintenance</a>
       <a href="/fleet/drivers">Drivers</a>
+      <a href="/fleet/assignment-history">Change history</a>
     </nav>
   </header>
 
   <main class="fleet-page">
+    {% include "shared/_flash.html" %}
     <h1>{% if vehicle %}Edit car{% else %}Add car{% endif %}</h1>
 
     <!-- One page for both, per the README. The route sends `vehicle` when editing. -->

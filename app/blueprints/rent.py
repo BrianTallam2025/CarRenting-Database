@@ -8,7 +8,7 @@ from app.auth import role_required
 from app.config import TIER_DISCOUNTS
 from app.db import execute, query, transaction
 from app.forms import RentForm
-from app.services.pricing import money, rental_days, total_cost
+from app.services.pricing import rental_days, total_cost
 from app.services.rules import customer_license_valid, is_driver_free, is_vehicle_available
 
 bp = Blueprint('rent', __name__)
@@ -113,33 +113,6 @@ def confirmation(rental_id):
 
     return render_template('customer/confirmation.html', rental=rental,
                            vehicle=vehicle, driver=driver)
-
-
-# B2 owns /my-rentals in the README split. This read-only page is a stopgap so
-# the customer navigation is complete for the presentation.
-@bp.route('/my-rentals')
-@role_required('customer')
-def my_rentals():
-    rentals = query(
-        """SELECT r.Rental_ID, r.Rental_Date, r.Due_Date, r.Return_Date,
-                  r.Total_Cost, r.Late_Fee, v.Make, v.Model
-           FROM RENTAL r
-           JOIN VEHICLE v ON v.Vehicle_ID = r.Vehicle_ID
-           WHERE r.Customer_ID = %s
-           ORDER BY r.Rental_Date DESC, r.Rental_ID DESC""",
-        (current_user.customer_id,))
-
-    today = date.today()
-    for row in rentals:
-        row['amount_due'] = money((row['Total_Cost'] or 0) + (row['Late_Fee'] or 0))
-        if row['Return_Date'] is not None:
-            row['status'] = 'returned'
-        elif row['Due_Date'] < today:
-            row['status'] = 'overdue'
-        else:
-            row['status'] = 'active'
-
-    return render_template('customer/my_rentals.html', rentals=rentals)
 
 
 def walkin_page():

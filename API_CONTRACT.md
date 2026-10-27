@@ -248,13 +248,14 @@ Errors:       none
 ### Rental details
 ```
 Route:        GET /agent/rentals/<id>
-Who can open: Rental Agent
+Who can open: Rental Agent, Fleet Manager
 Page gets:    rental.Rental_ID, rental.Rental_Date, rental.Due_Date, rental.Return_Date,
               rental.Is_Chauffeur, rental.Total_Cost, rental.Late_Fee, amount_due,
               customer.First_Name, customer.Last_Name, customer.Email, customer.Tier,
               vehicle.Make, vehicle.Model, vehicle.Plate_Number, vehicle.Daily_Rate,
               driver.First_Name, driver.Last_Name (empty when self-drive)
-Form sends:   no form (links to return and assign-driver)
+Form sends:   no form (return and assign-driver links for agents; change car or
+              driver link for managers)
 After submit: n/a
 Errors:       'Rental not found' as a 404 page
 ```
@@ -402,8 +403,8 @@ Page gets:    policies - list of
               vehicle.Plate_Number (for adding a policy)
 Form sends:   POST /fleet/insurance
               vehicle_id, provider, expiry_date
-After submit: saves and returns to /fleet/insurance
-Errors:       'This car already has a policy' as a red flash message
+After submit: saves or renews and returns to /fleet/insurance
+Errors:       none (saving an existing car renews its policy)
 ```
 
 ### Maintenance list
@@ -414,10 +415,13 @@ Page gets:    jobs - list of
               job.Maintenance_ID, job.Status, job.Start_Date, job.End_Date, job.Description,
               vehicle.Make, vehicle.Model, vehicle.Plate_Number
 Form sends:   no form (links to schedule)
-Action:       POST /fleet/maintenance/<id>/complete
-              sets End_Date = CURDATE(), Status = 'completed', car back to 'available'
+Actions:      POST /fleet/maintenance/<id>/start
+              scheduled -> in_progress; car -> maintenance
+              POST /fleet/maintenance/<id>/complete
+              in_progress -> completed; End_Date = CURDATE(); car back to available
 After submit: goes to /fleet/maintenance
-Errors:       'Job is already completed'
+Errors:       'Only scheduled maintenance can be started',
+              'Only in-progress maintenance can be completed'
 ```
 
 ### Schedule maintenance

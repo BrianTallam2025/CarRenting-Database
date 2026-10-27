@@ -23,14 +23,21 @@
   </header>
 
   <main class="agent-page">
+    {% include "shared/_flash.html" %}
     <h1>Process return</h1>
 
     <section class="card">
       <h2>Rental #{{ rental.Rental_ID }}</h2>
       <p>
+        {% if customer %}
         {{ customer.First_Name }} {{ customer.Last_Name }} —
+        {% endif %}
+        {% if vehicle %}
         {{ vehicle.Make }} {{ vehicle.Model }} ({{ vehicle.Plate_Number }})<br>
         <span class="muted">Rented {{ rental.Rental_Date }} · Due {{ rental.Due_Date }} · KES {{ vehicle.Daily_Rate }}/day</span>
+        {% else %}
+        <span class="muted">Vehicle record missing.</span>
+        {% endif %}
       </p>
     </section>
 
@@ -42,6 +49,10 @@
         <div class="total-box"><span>Amount due</span><strong>KES {{ amount_due }}</strong></div>
       </div>
 
+      {% if rental.Return_Date %}
+      <p class="muted">This rental is already closed. No further action is needed.
+        <a href="/agent/rentals/{{ rental.Rental_ID }}">Back to rental</a></p>
+      {% else %}
       <form class="agent-form" method="post"
             action="/agent/rentals/{{ rental.Rental_ID }}/return"
             data-confirm="Confirm this return? The late fee will be saved.">
@@ -55,6 +66,7 @@
           <a href="/agent/rentals/{{ rental.Rental_ID }}">Cancel</a>
         </div>
       </form>
+      {% endif %}
     </section>
   </main>
   <script src="{{ url_for('static', filename='js/confirm.js') }}"></script>

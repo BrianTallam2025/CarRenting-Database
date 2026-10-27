@@ -14,8 +14,12 @@
 .status-rented,
 .status-assigned  { background: #dbe8f5; color: #1c4a78; }
 .status-maintenance,
-.status-expiring  { background: #fbeccb; color: #7a5200; }
+.status-expiring,
+.status-scheduled,
+.status-in_progress { background: #fbeccb; color: #7a5200; }
 .status-expired   { background: #f6d9d4; color: #8a2a1b; }
+.status-completed { background: #dcf0e3; color: #1d5c36; }
+.inline-form { display: inline; }
 
 /* form layout */
 .form-layout { max-width: 36rem; }

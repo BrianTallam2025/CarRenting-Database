@@ -18,7 +18,7 @@
   <p><b>{{ active_rental.Make }} {{ active_rental.Model }}</b>
      · {{ active_rental.Plate_Number }}</p>
   <p>Due back on <b>{{ active_rental.Due_Date }}</b>.</p>
-  <a class="btn" href="{{ url_for('rent.my_rentals') }}">View my rentals</a>
+  <a class="btn" href="{{ url_for('returns.my_rentals') }}">View my rentals</a>
 </div>
 {% else %}
 <div class="card">
@@ -37,7 +37,7 @@
     <td>{{ r.Make }} {{ r.Model }}</td>
     <td>{{ r.Rental_Date }}</td>
     <td>{{ r.Due_Date }}</td>
-    <td><a href="{{ url_for('rent.my_rentals') }}">Details</a></td>
+    <td><a href="{{ url_for('returns.my_rentals') }}">Details</a></td>
   </tr>
   {% endfor %}
 </table>

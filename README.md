@@ -258,8 +258,11 @@ accounts = [
 with db.cursor() as cur:
     for email, role, cust, drv in accounts:
         cur.execute(
-            'INSERT IGNORE INTO USER_ACCOUNT (Email, Password_Hash, Role, Customer_ID, Driver_ID) '
-            'VALUES (%s, %s, %s, %s, %s)', (email, pw, role, cust, drv))
+            'INSERT INTO USER_ACCOUNT (Email, Password_Hash, Role, Customer_ID, Driver_ID) '
+            'VALUES (%s, %s, %s, %s, %s) '
+            'ON DUPLICATE KEY UPDATE Password_Hash = %s, Role = %s, '
+            'Customer_ID = %s, Driver_ID = %s',
+            (email, pw, role, cust, drv, pw, role, cust, drv))
 db.commit()
 print('Accounts created.')
 ```

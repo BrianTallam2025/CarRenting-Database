@@ -19,10 +19,12 @@
       <a href="/fleet/insurance">Insurance</a>
       <a href="/fleet/maintenance">Maintenance</a>
       <a href="/fleet/drivers">Drivers</a>
+      <a href="/fleet/assignment-history">Change history</a>
     </nav>
   </header>
 
   <main class="fleet-page">
+    {% include "shared/_flash.html" %}
     <div class="page-top">
       <h1>Cars</h1>
       <a class="btn" href="/fleet/vehicles/new">Add car</a>
@@ -35,11 +37,20 @@
             <tr><th>Plate</th><th>VIN</th><th>Make</th><th>Model</th><th>Year</th><th>Daily rate (KES)</th><th>Status</th><th></th></tr>
           </thead>
           <tbody>
-            <!-- {% for v in vehicles %}
-            status badge: <span class="status-badge status-{{ v.Status }}">{{ v.Status }}</span>
-            edit link: /fleet/vehicles/{{ v.Vehicle_ID }}/edit
-            {% endfor %} -->
+            {% for v in vehicles %}
+            <tr>
+              <td>{{ v.Plate_Number }}</td>
+              <td>{{ v.VIN }}</td>
+              <td>{{ v.Make }}</td>
+              <td>{{ v.Model }}</td>
+              <td>{{ v.Year }}</td>
+              <td>{{ '{:,.2f}'.format(v.Daily_Rate) }}</td>
+              <td><span class="status-badge status-{{ v.Status }}">{{ v.Status }}</span></td>
+              <td><a class="btn" href="/fleet/vehicles/{{ v.Vehicle_ID }}/edit">Edit</a></td>
+            </tr>
+            {% else %}
             <tr class="empty-row"><td colspan="8">No cars in the fleet yet.</td></tr>
+            {% endfor %}
           </tbody>
         </table>
       </div>

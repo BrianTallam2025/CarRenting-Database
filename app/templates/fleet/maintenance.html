@@ -19,10 +19,12 @@
       <a href="/fleet/insurance">Insurance</a>
       <a href="/fleet/maintenance" class="current">Maintenance</a>
       <a href="/fleet/drivers">Drivers</a>
+      <a href="/fleet/assignment-history">Change history</a>
     </nav>
   </header>
 
   <main class="fleet-page">
+    {% include "shared/_flash.html" %}
     <div class="page-top">
       <h1>Maintenance</h1>
       <a class="btn" href="/fleet/maintenance/new">Schedule maintenance</a>
@@ -32,11 +34,34 @@
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>Plate</th><th>Car</th><th>Start</th><th>End</th><th>Description</th><th>Status</th></tr>
+            <tr><th>Plate</th><th>Car</th><th>Start</th><th>End</th><th>Description</th><th>Status</th><th></th></tr>
           </thead>
           <tbody>
-            <!-- {% for m in jobs %} one row each, grouped or filtered by status {% endfor %} -->
-            <tr class="empty-row"><td colspan="6">No maintenance jobs yet.</td></tr>
+            {% for m in jobs %}
+            <tr>
+              <td>{{ m.Plate_Number }}</td>
+              <td>{{ m.Make }} {{ m.Model }}</td>
+              <td>{{ m.Start_Date }}</td>
+              <td>{{ m.End_Date or '—' }}</td>
+              <td>{{ m.Description }}</td>
+              <td><span class="status-badge status-{{ m.Status }}">{{ m.Status }}</span></td>
+              <td>
+                {% if m.Status == 'scheduled' %}
+                <form class="inline-form" method="post" action="/fleet/maintenance/{{ m.Maintenance_ID }}/start">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="btn" type="submit">Start</button>
+                </form>
+                {% elif m.Status == 'in_progress' %}
+                <form class="inline-form" method="post" action="/fleet/maintenance/{{ m.Maintenance_ID }}/complete">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="btn" type="submit">Complete</button>
+                </form>
+                {% endif %}
+              </td>
+            </tr>
+            {% else %}
+            <tr class="empty-row"><td colspan="7">No maintenance jobs yet.</td></tr>
+            {% endfor %}
           </tbody>
         </table>
       </div>

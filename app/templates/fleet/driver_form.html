@@ -19,10 +19,12 @@
       <a href="/fleet/insurance">Insurance</a>
       <a href="/fleet/maintenance">Maintenance</a>
       <a href="/fleet/drivers" class="current">Drivers</a>
+      <a href="/fleet/assignment-history">Change history</a>
     </nav>
   </header>
 
   <main class="fleet-page">
+    {% include "shared/_flash.html" %}
     <h1>{% if driver %}Edit driver{% else %}Add driver{% endif %}</h1>
 
     <form class="card form-layout"

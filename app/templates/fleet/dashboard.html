@@ -19,18 +19,20 @@
       <a href="/fleet/insurance">Insurance</a>
       <a href="/fleet/maintenance">Maintenance</a>
       <a href="/fleet/drivers">Drivers</a>
+      <a href="/fleet/assignment-history">Change history</a>
     </nav>
   </header>
 
   <main class="fleet-page">
+    {% include "shared/_flash.html" %}
     <h1>Fleet dashboard</h1>
 
     <section class="card">
       <h2>Cars by status</h2>
       <ul class="stat-list">
-        <li><span class="stat-number">-</span> Available</li>
-        <li><span class="stat-number">-</span> Rented</li>
-        <li><span class="stat-number">-</span> In maintenance</li>
+        <li><span class="stat-number">{{ counts.available }}</span> Available</li>
+        <li><span class="stat-number">{{ counts.rented }}</span> Rented</li>
+        <li><span class="stat-number">{{ counts.maintenance }}</span> In maintenance</li>
       </ul>
     </section>
 
@@ -42,8 +44,15 @@
             <tr><th>Plate</th><th>Car</th><th>Expires</th></tr>
           </thead>
           <tbody>
-            <!-- {% for p in expiring_policies %} one row each {% endfor %} -->
+            {% for p in expiring_policies %}
+            <tr>
+              <td>{{ p.Plate_Number }}</td>
+              <td>{{ p.Make }} {{ p.Model }}</td>
+              <td>{{ p.Expiry_Date }}</td>
+            </tr>
+            {% else %}
             <tr class="empty-row"><td colspan="3">No policies expiring soon.</td></tr>
+            {% endfor %}
           </tbody>
         </table>
       </div>

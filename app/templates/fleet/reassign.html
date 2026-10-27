@@ -22,6 +22,7 @@
   </header>
 
   <main class="agent-page">
+    {% include "shared/_flash.html" %}
     <h1>Change car or driver</h1>
     <p class="muted">Rental #{{ rental.Rental_ID }} · {{ rental.Rental_Date }} to {{ rental.Due_Date }}</p>
 

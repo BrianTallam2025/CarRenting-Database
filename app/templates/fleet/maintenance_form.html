@@ -19,10 +19,12 @@
       <a href="/fleet/insurance">Insurance</a>
       <a href="/fleet/maintenance" class="current">Maintenance</a>
       <a href="/fleet/drivers">Drivers</a>
+      <a href="/fleet/assignment-history">Change history</a>
     </nav>
   </header>
 
   <main class="fleet-page">
+    {% include "shared/_flash.html" %}
     <h1>Schedule maintenance</h1>
 
     <form class="card form-layout" action="/fleet/maintenance/new" method="post">
@@ -34,7 +36,9 @@
         <label for="vehicle">Car</label>
         <select id="vehicle" name="vehicle_id" required>
           <option value="">Choose a car</option>
-          <!-- {% for v in vehicles %}<option value="{{ v.Vehicle_ID }}">{{ v.Plate_Number }}, {{ v.Make }} {{ v.Model }}</option>{% endfor %} -->
+          {% for v in vehicles %}
+          <option value="{{ v.Vehicle_ID }}">{{ v.Plate_Number }}, {{ v.Make }} {{ v.Model }}</option>
+          {% endfor %}
         </select>
       </div>
 

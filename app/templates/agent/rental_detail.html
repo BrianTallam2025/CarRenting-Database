@@ -23,25 +23,38 @@
   </header>
 
   <main class="agent-page">
+    {% include "shared/_flash.html" %}
     <h1>Rental #{{ rental.Rental_ID }}</h1>
 
     <section class="card">
       <h2>Customer</h2>
       <p>
+        {% if customer %}
         {{ customer.First_Name }} {{ customer.Last_Name }}<br>
         <span class="muted">{{ customer.Email }} · Tier: {{ customer.Tier }}</span>
+        {% else %}
+        <span class="muted">Customer record not found.</span>
+        {% endif %}
       </p>
     </section>
 
     <section class="card">
       <h2>Vehicle and driver</h2>
       <p>
+        {% if vehicle %}
         {{ vehicle.Make }} {{ vehicle.Model }} ({{ vehicle.Plate_Number }})<br>
         <span class="muted">KES {{ vehicle.Daily_Rate }} per day</span>
+        {% else %}
+        <span class="muted">Vehicle to be assigned.</span>
+        {% endif %}
       </p>
       <p>
         {% if rental.Is_Chauffeur %}
+          {% if driver %}
           Driver: {{ driver.First_Name }} {{ driver.Last_Name }}
+          {% else %}
+          Chauffeur to be assigned
+          {% endif %}
         {% else %}
           Self-drive
         {% endif %}
@@ -64,8 +77,10 @@
     <p class="muted">This rental is closed. No further action is needed.</p>
     {% else %}
     <div class="actions">
+      {% if current_user.role == 'rental_agent' %}
       <a class="btn" href="/agent/rentals/{{ rental.Rental_ID }}/return">Process return</a>
       <a class="btn" href="/agent/rentals/{{ rental.Rental_ID }}/assign-driver">Assign driver</a>
+      {% endif %}
       {% if current_user.role == 'fleet_manager' %}
       <a class="btn" href="/fleet/rentals/{{ rental.Rental_ID }}/reassign">Change car or driver</a>
       {% endif %}
