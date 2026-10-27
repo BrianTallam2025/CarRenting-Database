@@ -113,22 +113,28 @@ class B2PageContractTests(unittest.TestCase):
             'Return_Date': None,
             'Total_Cost': Decimal('9975.00'),
             'Late_Fee': Decimal('0.00'),
-            'Daily_Rate': Decimal('3500.00'),
+            'Is_Chauffeur': False,
+            'Customer_ID': 1,
             'Vehicle_ID': 1,
             'Driver_ID': None,
-            'Customer_First_Name': 'Amina',
-            'Customer_Last_Name': 'Wanjiru',
-            'Customer_Email': 'amina@example.com',
-            'Customer_Tier': 'silver',
+        }
+        customer = {
+            'First_Name': 'Amina',
+            'Last_Name': 'Wanjiru',
+            'Email': 'amina@example.com',
+            'Tier': 'silver',
+        }
+        vehicle = {
             'Make': 'Toyota',
             'Model': 'Corolla',
             'Plate_Number': 'KDA 101A',
-            'Driver_First_Name': None,
-            'Driver_Last_Name': None,
-            'Is_Chauffeur': False,
+            'Daily_Rate': Decimal('3500.00'),
         }
         with self.login('rental_agent'):
-            with patch('app.blueprints.returns.query', return_value=rental):
+            with patch(
+                'app.blueprints.returns.query',
+                side_effect=[rental, customer, vehicle],
+            ):
                 response = self.client.get('/agent/rentals/7/return')
 
         self.assertEqual(response.status_code, 200)

@@ -3,20 +3,39 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#14213d">
   <title>{% block title %}Car Rental{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/components/customer.css') }}">
   {% block head %}{% endblock %}
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
   <header>
     <span class="brand"><a href="{{ url_for('main.landing') }}">Car Rental</a></span>
     {% block nav %}
-    <nav>
+    <nav class="site-nav" aria-label="Main navigation">
       {% if current_user.is_authenticated %}
         {% if current_user.role == 'customer' %}
           <a href="{{ url_for('accounts.dashboard') }}">Dashboard</a>
           <a href="{{ url_for('rent.vehicles') }}">Browse cars</a>
+          <a href="{{ url_for('returns.my_rentals') }}">My rentals</a>
+          <a href="{{ url_for('accounts.profile') }}">My profile</a>
+        {% elif current_user.role == 'rental_agent' %}
+          <a href="{{ url_for('returns.dashboard') }}">Agent dashboard</a>
+          <a href="{{ url_for('returns.rentals') }}">Rentals</a>
+          <a href="{{ url_for('rent.walkin') }}">Walk-in rental</a>
+          <a href="{{ url_for('returns.customers') }}">Customers</a>
+        {% elif current_user.role == 'fleet_manager' %}
+          <a href="{{ url_for('fleet.dashboard') }}">Fleet dashboard</a>
+          <a href="{{ url_for('fleet.vehicles') }}">Vehicles</a>
+          <a href="{{ url_for('fleet.insurance') }}">Insurance</a>
+          <a href="{{ url_for('fleet.maintenance') }}">Maintenance</a>
+          <a href="{{ url_for('fleet.drivers') }}">Drivers</a>
+          <a href="{{ url_for('assignments.assignment_history') }}">Assignment history</a>
+        {% elif current_user.role == 'driver' %}
+          <a href="{{ url_for('driver.current') }}">Current assignment</a>
+          <a href="{{ url_for('driver.history') }}">Trip history</a>
         {% endif %}
         <a href="{{ url_for('accounts.logout') }}">Log out</a>
       {% else %}
@@ -26,18 +45,13 @@
     </nav>
     {% endblock %}
   </header>
-  <main>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div class="flashes">
-          {% for category, message in messages %}
-            <p class="flash {{ category }}">{{ message }}</p>
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
+  <main id="main-content">
+    {% include "shared/_flash.html" %}
     {% block content %}{% endblock %}
   </main>
   {% block scripts %}{% endblock %}
+  <footer class="site-footer">
+    <p>Car Rental &mdash; reliable journeys, made simple.</p>
+  </footer>
 </body>
 </html>

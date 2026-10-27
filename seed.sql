@@ -16,7 +16,7 @@ INSERT INTO VEHICLE (Vehicle_ID, VIN, Plate_Number, Make, Model, Year, Daily_Rat
 INSERT INTO INSURANCE_POLICY (Vehicle_ID, Provider, Expiry_Date) VALUES
 (1, 'Jubilee Insurance',  '2027-01-15'),
 (2, 'Britam',             '2027-03-20'),
-(3, 'CIC Insurance',      '2026-12-20'),
+(3, 'CIC Insurance',      DATE_ADD(CURDATE(), INTERVAL 20 DAY)),
 (4, 'Jubilee Insurance',  '2027-05-05'),
 (5, 'APA Insurance',      '2027-08-08');
 
@@ -41,10 +41,10 @@ INSERT INTO DRIVER (Driver_ID, First_Name, Last_Name, License_Number, Status) VA
 
 -- Rentals: one returned on time, one active, one returned late.
 INSERT INTO RENTAL (Rental_ID, Customer_ID, Vehicle_ID, Driver_ID, Is_Chauffeur, Rental_Date, Due_Date, Return_Date, Total_Cost, Late_Fee) VALUES
-(1, 1, 1, NULL, FALSE, '2026-03-01', '2026-03-04', '2026-03-04', 10500.00,     0.00),
-(2, 2, 2, 1,    TRUE,  '2026-04-01', '2026-04-06', NULL,         22500.00,     0.00),
-(3, 3, 3, NULL, FALSE, '2026-02-10', '2026-02-12', '2026-02-14',  8000.00, 12000.00);
+(1, 1, 1, 1,    TRUE,  DATE_SUB(CURDATE(), INTERVAL 40 DAY), DATE_SUB(CURDATE(), INTERVAL 37 DAY), DATE_SUB(CURDATE(), INTERVAL 37 DAY), 10500.00,     0.00),
+(2, 2, 2, 1,    TRUE,  DATE_SUB(CURDATE(), INTERVAL 5 DAY),  DATE_SUB(CURDATE(), INTERVAL 2 DAY),  NULL,                                 22500.00,     0.00),
+(3, 3, 3, NULL, FALSE, DATE_SUB(CURDATE(), INTERVAL 20 DAY), DATE_SUB(CURDATE(), INTERVAL 18 DAY), DATE_SUB(CURDATE(), INTERVAL 16 DAY),  8000.00, 12000.00);
 
 -- One service job in progress, which is why vehicle 5 is in maintenance.
 INSERT INTO MAINTENANCE (Maintenance_ID, Vehicle_ID, Status, Start_Date, End_Date, Description) VALUES
-(1, 5, 'in_progress', '2026-10-10', NULL, 'Scheduled full service');
+(1, 5, 'in_progress', DATE_SUB(CURDATE(), INTERVAL 10 DAY), NULL, 'Scheduled full service');

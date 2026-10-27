@@ -1,28 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cars | Fleet</title>
-  <!-- F1's shared styles. Missing until main.css is pushed. -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/fleet.css') }}">
-</head>
-<body>
-  <!-- Temporary header and menu so the pages can be opened on their own.
-       Delete this block and use the base template once F1 ships base.html. -->
-  <header class="fleet-temp-header">
-    <strong>Car Rental</strong>
-    <nav aria-label="Fleet">
-      <a href="/fleet">Dashboard</a>
-      <a href="/fleet/vehicles" class="current">Cars</a>
-      <a href="/fleet/insurance">Insurance</a>
-      <a href="/fleet/maintenance">Maintenance</a>
-      <a href="/fleet/drivers">Drivers</a>
-    </nav>
-  </header>
-
-  <main class="fleet-page">
+{% extends "shared/base.html" %}
+{% block title %}Cars | Fleet{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/fleet.css') }}">
+{% endblock %}
+{% block content %}
     <div class="page-top">
       <h1>Cars</h1>
       <a class="btn" href="/fleet/vehicles/new">Add car</a>
@@ -35,15 +16,22 @@
             <tr><th>Plate</th><th>VIN</th><th>Make</th><th>Model</th><th>Year</th><th>Daily rate (KES)</th><th>Status</th><th></th></tr>
           </thead>
           <tbody>
-            <!-- {% for v in vehicles %}
-            status badge: <span class="status-badge status-{{ v.Status }}">{{ v.Status }}</span>
-            edit link: /fleet/vehicles/{{ v.Vehicle_ID }}/edit
-            {% endfor %} -->
+            {% for v in vehicles %}
+            <tr>
+              <td>{{ v.Plate_Number }}</td>
+              <td>{{ v.VIN }}</td>
+              <td>{{ v.Make }}</td>
+              <td>{{ v.Model }}</td>
+              <td>{{ v.Year }}</td>
+              <td>{{ '{:,.2f}'.format(v.Daily_Rate) }}</td>
+              <td><span class="status-badge status-{{ v.Status }}">{{ v.Status }}</span></td>
+              <td><a class="btn" href="/fleet/vehicles/{{ v.Vehicle_ID }}/edit">Edit</a></td>
+            </tr>
+            {% else %}
             <tr class="empty-row"><td colspan="8">No cars in the fleet yet.</td></tr>
+            {% endfor %}
           </tbody>
         </table>
       </div>
     </div>
-  </main>
-</body>
-</html>
+{% endblock %}

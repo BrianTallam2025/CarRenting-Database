@@ -119,7 +119,7 @@ For a form (such as renting), the browser sends a `POST`, the route validates it
 ```
 car-rental/
 ├── app/
-│   ├── __init__.py            # create_app(): config, login manager, CSRF, blueprints   (B1)
+│   ├── __init__.py            # app setup, blueprints, and error handlers               (B1)
 │   ├── config.py              # constants: late fee multiplier, tier discounts          (B1)
 │   ├── db.py                  # connection helpers: query(), execute(), get_db()        (B1)
 │   ├── auth.py                # User class, login manager, role_required                (B1)
@@ -128,10 +128,11 @@ car-rental/
 │   │   ├── rules.py           # shared rule checks (availability, driver free, etc.)
 │   │   └── pricing.py         # total cost and late fee calculations
 │   ├── blueprints/            # backend routes, one file per area
-│   │   ├── main.py            # landing, errors                                          (B1)
+│   │   ├── main.py            # public landing route                                     (B1)
 │   │   ├── accounts.py        # register, login, logout, customer dashboard, profile    (B1)
 │   │   ├── rent.py            # browse, details, rent, confirmation, walk-in             (B1)
-│   │   ├── assignments.py     # assign driver, reassign, history, driver portal          (B1)
+│   │   ├── assignments.py     # assign driver, reassign, assignment history              (B1)
+│   │   ├── driver.py          # driver portal routes                                     (B1)
 │   │   ├── returns.py         # process return, rental lists and details                 (B2)
 │   │   └── fleet.py           # vehicles, insurance, maintenance, driver pool            (B2)
 │   ├── templates/             # frontend pages
@@ -141,8 +142,8 @@ car-rental/
 │   │   ├── agent/             # agent dashboard, rentals, return, assign...               (F3)
 │   │   └── fleet/             # fleet pages, plus reassign and history pages (F3)         (F4)
 │   └── static/
-│       ├── css/main.css       # shared styles                                             (F1)
-│       ├── css/components/    # each person's own component CSS files
+│       ├── css/main.css       # shared styles, navigation and common components           (F1)
+│       ├── css/components/    # page-area styles owned by F2, F3 and F4
 │       └── js/                # small scripts (price preview, confirm dialogs)
 ├── schema.sql                 # all tables, trigger                                       (B2)
 ├── seed.sql                   # sample cars, customers, drivers                           (B2)
@@ -258,8 +259,11 @@ accounts = [
 with db.cursor() as cur:
     for email, role, cust, drv in accounts:
         cur.execute(
-            'INSERT IGNORE INTO USER_ACCOUNT (Email, Password_Hash, Role, Customer_ID, Driver_ID) '
-            'VALUES (%s, %s, %s, %s, %s)', (email, pw, role, cust, drv))
+            'INSERT INTO USER_ACCOUNT (Email, Password_Hash, Role, Customer_ID, Driver_ID) '
+            'VALUES (%s, %s, %s, %s, %s) '
+            'ON DUPLICATE KEY UPDATE Password_Hash = %s, Role = %s, '
+            'Customer_ID = %s, Driver_ID = %s',
+            (email, pw, role, cust, drv, pw, role, cust, drv))
 db.commit()
 print('Accounts created.')
 ```
@@ -907,7 +911,7 @@ Every form must include the CSRF token or it will be rejected:
 ### CSS rules
 
 - F1 owns `static/css/main.css`: colors, fonts, spacing, buttons (`btn`), boxes (`card`), forms (`input`), tables (`table`), badges and flash messages. Use these class names instead of inventing your own.
-- Page-specific parts go in your own file under `static/css/components/`, for example `vehicle-card.css`. F1's `base.html` loads them.
+- Page-specific parts go in your own file under `static/css/components/`. Pages extend `shared/base.html` and load their component styles in the `head` block.
 - Suggested ownership of components: F2 the car card and tier badge, F3 the data table and confirm pop-up, F4 the status badge and form layout. F1 keeps the menu and flash messages.
 - Design for a phone first. Many users will open this on a phone.
 - Colors and spacing come from CSS variables defined in `main.css`, so one change restyles the whole site.
@@ -1132,4 +1136,3 @@ Not required for the course, so not planned: password reset, change-password pag
 | venv | A private Python setup for this project |
 | CSRF | An attack where another site tricks your browser into submitting a form. The token blocks it |
 | 1NF | First normal form: no repeating columns, so phone numbers live in their own table |
-

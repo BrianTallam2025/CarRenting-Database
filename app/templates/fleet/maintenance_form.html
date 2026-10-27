@@ -1,28 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Schedule maintenance | Fleet</title>
-  <!-- F1's shared styles. Missing until main.css is pushed. -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/fleet.css') }}">
-</head>
-<body>
-  <!-- Temporary header and menu so the pages can be opened on their own.
-       Delete this block and use the base template once F1 ships base.html. -->
-  <header class="fleet-temp-header">
-    <strong>Car Rental</strong>
-    <nav aria-label="Fleet">
-      <a href="/fleet">Dashboard</a>
-      <a href="/fleet/vehicles">Cars</a>
-      <a href="/fleet/insurance">Insurance</a>
-      <a href="/fleet/maintenance" class="current">Maintenance</a>
-      <a href="/fleet/drivers">Drivers</a>
-    </nav>
-  </header>
-
-  <main class="fleet-page">
+{% extends "shared/base.html" %}
+{% block title %}Schedule maintenance | Fleet{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/fleet.css') }}">
+{% endblock %}
+{% block content %}
     <h1>Schedule maintenance</h1>
 
     <form class="card form-layout" action="/fleet/maintenance/new" method="post">
@@ -34,7 +15,9 @@
         <label for="vehicle">Car</label>
         <select id="vehicle" name="vehicle_id" required>
           <option value="">Choose a car</option>
-          <!-- {% for v in vehicles %}<option value="{{ v.Vehicle_ID }}">{{ v.Plate_Number }}, {{ v.Make }} {{ v.Model }}</option>{% endfor %} -->
+          {% for v in vehicles %}
+          <option value="{{ v.Vehicle_ID }}">{{ v.Plate_Number }}, {{ v.Make }} {{ v.Model }}</option>
+          {% endfor %}
         </select>
       </div>
 
@@ -59,6 +42,4 @@
         <a href="/fleet/maintenance">Cancel</a>
       </div>
     </form>
-  </main>
-</body>
-</html>
+{% endblock %}

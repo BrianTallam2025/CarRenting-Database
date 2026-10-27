@@ -6,9 +6,9 @@ from pymysql.err import IntegrityError
 
 from app.auth import role_required
 from app.config import TIER_DISCOUNTS
-from app.db import execute, query, transaction
+from app.db import query, transaction
 from app.forms import RentForm
-from app.services.pricing import money, rental_days, total_cost
+from app.services.pricing import rental_days, total_cost
 from app.services.rules import customer_license_valid, is_driver_free, is_vehicle_available
 
 bp = Blueprint('rent', __name__)
@@ -115,33 +115,6 @@ def confirmation(rental_id):
                            vehicle=vehicle, driver=driver)
 
 
-# B2 owns /my-rentals in the README split. This read-only page is a stopgap so
-# the customer navigation is complete for the presentation.
-@bp.route('/my-rentals')
-@role_required('customer')
-def my_rentals():
-    rentals = query(
-        """SELECT r.Rental_ID, r.Rental_Date, r.Due_Date, r.Return_Date,
-                  r.Total_Cost, r.Late_Fee, v.Make, v.Model
-           FROM RENTAL r
-           JOIN VEHICLE v ON v.Vehicle_ID = r.Vehicle_ID
-           WHERE r.Customer_ID = %s
-           ORDER BY r.Rental_Date DESC, r.Rental_ID DESC""",
-        (current_user.customer_id,))
-
-    today = date.today()
-    for row in rentals:
-        row['amount_due'] = money((row['Total_Cost'] or 0) + (row['Late_Fee'] or 0))
-        if row['Return_Date'] is not None:
-            row['status'] = 'returned'
-        elif row['Due_Date'] < today:
-            row['status'] = 'overdue'
-        else:
-            row['status'] = 'active'
-
-    return render_template('customer/my_rentals.html', rentals=rentals)
-
-
 def walkin_page():
     customers = query(
         'SELECT Customer_ID, First_Name, Last_Name, Email, Tier '
@@ -197,7 +170,8 @@ def walkin():
         flash('Driver not available', 'error')
         return redirect(url_for('rent.walkin'))
 
-    customer = None
+    new_customer = not customer_id
+    tier = 'standard'
     if customer_id:
         customer = query('SELECT * FROM CUSTOMER WHERE Customer_ID = %s',
                          (customer_id,), one=True)
@@ -207,6 +181,7 @@ def walkin():
         if not customer_license_valid(customer_id):
             flash('Customer license expired', 'error')
             return redirect(url_for('rent.walkin'))
+        tier = customer['Tier']
     else:
         details = {
             'national_id': (request.form.get('national_id') or '').strip(),
@@ -230,36 +205,53 @@ def walkin():
             flash('Customer license expired', 'error')
             return redirect(url_for('rent.walkin'))
 
-        try:
-            customer_id = execute(
-                """INSERT INTO CUSTOMER
-                   (National_ID, First_Name, Last_Name, Email,
-                    License_Number, License_Expiry)
-                   VALUES (%s, %s, %s, %s, %s, %s)""",
-                (details['national_id'], details['first_name'], details['last_name'],
-                 details['email'], details['license_number'], license_expiry))
-        except IntegrityError:
-            flash('Email, national ID or license number already in use.', 'error')
-            return redirect(url_for('rent.walkin'))
-
-        customer = query('SELECT * FROM CUSTOMER WHERE Customer_ID = %s',
-                         (customer_id,), one=True)
-
     vehicle = query('SELECT Daily_Rate FROM VEHICLE WHERE Vehicle_ID = %s',
                     (vehicle_id,), one=True)
+    if vehicle is None:
+        flash('Vehicle not available', 'error')
+        return redirect(url_for('rent.walkin'))
     days = rental_days(start_date, end_date)
-    cost = total_cost(vehicle['Daily_Rate'], days, customer['Tier'])
+    cost = total_cost(vehicle['Daily_Rate'], days, tier)
 
-    rental_id = execute(
-        """INSERT INTO RENTAL
-           (Customer_ID, Vehicle_ID, Driver_ID, Is_Chauffeur,
-            Rental_Date, Due_Date, Total_Cost)
-           VALUES (%s, %s, %s, %s, %s, %s, %s)""",
-        (customer_id, vehicle_id, driver_id, is_chauffeur,
-         start_date, end_date, cost))
-    execute("UPDATE VEHICLE SET Status = 'rented' WHERE Vehicle_ID = %s", (vehicle_id,))
-    if driver_id is not None:
-        execute("UPDATE DRIVER SET Status = 'assigned' WHERE Driver_ID = %s", (driver_id,))
+    try:
+        with transaction() as db:
+            with db.cursor() as cur:
+                if new_customer:
+                    cur.execute(
+                        """INSERT INTO CUSTOMER
+                           (National_ID, First_Name, Last_Name, Email,
+                            License_Number, License_Expiry)
+                           VALUES (%s, %s, %s, %s, %s, %s)""",
+                        (
+                            details['national_id'],
+                            details['first_name'],
+                            details['last_name'],
+                            details['email'],
+                            details['license_number'],
+                            license_expiry,
+                        ),
+                    )
+                    customer_id = cur.lastrowid
+
+                cur.execute(
+                    """INSERT INTO RENTAL
+                       (Customer_ID, Vehicle_ID, Driver_ID, Is_Chauffeur,
+                        Rental_Date, Due_Date, Total_Cost)
+                       VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+                    (customer_id, vehicle_id, driver_id, is_chauffeur,
+                     start_date, end_date, cost))
+                rental_id = cur.lastrowid
+
+                cur.execute(
+                    "UPDATE VEHICLE SET Status = 'rented' WHERE Vehicle_ID = %s",
+                    (vehicle_id,))
+                if driver_id is not None:
+                    cur.execute(
+                        "UPDATE DRIVER SET Status = 'assigned' WHERE Driver_ID = %s",
+                        (driver_id,))
+    except IntegrityError:
+        flash('The rental could not be created because of a data conflict.', 'error')
+        return redirect(url_for('rent.walkin'))
 
     flash('Rental created.', 'success')
     return redirect('/agent/rentals/%d' % rental_id)

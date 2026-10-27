@@ -1,28 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Walk-in rental | Agent</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/agent.css') }}">
-</head>
-<body>
-  <!-- Temporary header until F1 ships shared/base.html; then use the base template. -->
-  <header class="agent-temp-header">
-    <strong>Car Rental</strong>
-    <nav aria-label="Agent">
-      <a href="/agent">Dashboard</a>
-      <a href="/agent/rentals">Rentals</a>
-      <a href="/agent/rent" class="current">Walk-in</a>
-      <a href="/agent/customers">Customers</a>
-      {% if current_user.role == 'fleet_manager' %}
-      <a href="/fleet/assignment-history">Change history</a>
-      {% endif %}
-    </nav>
-  </header>
-
-  <main class="agent-page">
+{% extends "shared/base.html" %}
+{% block title %}Walk-in rental | Agent{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/agent.css') }}">
+{% endblock %}
+{% block content %}
     <h1>Walk-in rental</h1>
 
     <form class="card agent-form" method="post" action="/agent/rent">
@@ -84,6 +65,4 @@
         <a href="/agent/rentals">Cancel</a>
       </div>
     </form>
-  </main>
-</body>
-</html>
+{% endblock %}

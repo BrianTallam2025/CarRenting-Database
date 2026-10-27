@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 
 import pymysql
 from flask import Blueprint, abort, flash, redirect, render_template, url_for
@@ -11,13 +11,16 @@ from app.services.rules import has_active_maintenance
 bp = Blueprint('fleet', __name__)
 
 
-def _vehicle_choices(exclude_rented=False):
-    status_filter = "WHERE Status <> 'rented'" if exclude_rented else ''
-    vehicles = query(
+def _vehicle_rows(include_rented=True):
+    where = '' if include_rented else "WHERE Status <> 'rented'"
+    return query(
         f"""SELECT Vehicle_ID, Make, Model, Plate_Number, Status
-            FROM VEHICLE {status_filter}
+            FROM VEHICLE {where}
             ORDER BY Make, Model, Plate_Number"""
     )
+
+
+def _vehicle_choices(vehicles):
     return [
         (
             row['Vehicle_ID'],
@@ -30,14 +33,13 @@ def _vehicle_choices(exclude_rented=False):
 @bp.route('/fleet')
 @role_required('fleet_manager')
 def dashboard():
-    counts = query(
-        """SELECT
-               COALESCE(SUM(Status = 'available'), 0) AS available,
-               COALESCE(SUM(Status = 'rented'), 0) AS rented,
-               COALESCE(SUM(Status = 'maintenance'), 0) AS maintenance
-           FROM VEHICLE""",
-        one=True,
-    )
+    counts = {'available': 0, 'rented': 0, 'maintenance': 0}
+    for row in query(
+        """SELECT Status, COUNT(*) AS Count
+           FROM VEHICLE GROUP BY Status"""
+    ):
+        counts[row['Status']] = row['Count']
+
     expiring_policies = query(
         """SELECT i.*, v.Make, v.Model, v.Plate_Number
            FROM INSURANCE_POLICY i
@@ -180,8 +182,9 @@ def edit_vehicle(vehicle_id):
 @bp.route('/fleet/insurance', methods=['GET', 'POST'])
 @role_required('fleet_manager')
 def insurance():
+    vehicle_rows = _vehicle_rows()
     form = InsuranceForm()
-    form.vehicle_id.choices = _vehicle_choices()
+    form.vehicle_id.choices = _vehicle_choices(vehicle_rows)
     if form.validate_on_submit():
         db = get_db()
         try:
@@ -232,11 +235,19 @@ def insurance():
            JOIN VEHICLE v ON v.Vehicle_ID = i.Vehicle_ID
            ORDER BY i.Expiry_Date, v.Make, v.Model"""
     )
+    today = date.today()
+    for policy in policies:
+        if policy['Expiry_Date'] < today:
+            policy['status'] = 'expired'
+        elif policy['Expiry_Date'] <= today + timedelta(days=30):
+            policy['status'] = 'expiring'
+        else:
+            policy['status'] = 'valid'
     return render_template(
         'fleet/insurance.html',
         form=form,
         policies=policies,
-        vehicles=_vehicle_choices(),
+        vehicles=vehicle_rows,
     )
 
 
@@ -260,8 +271,9 @@ def maintenance():
 @bp.route('/fleet/maintenance/new', methods=['GET', 'POST'])
 @role_required('fleet_manager')
 def new_maintenance():
+    vehicle_rows = _vehicle_rows(include_rented=False)
     form = MaintenanceForm()
-    form.vehicle_id.choices = _vehicle_choices(exclude_rented=True)
+    form.vehicle_id.choices = _vehicle_choices(vehicle_rows)
     if form.validate_on_submit():
         if form.end_date.data and form.end_date.data < form.start_date.data:
             flash('The expected end date cannot be before the start date.', 'error')
@@ -311,7 +323,7 @@ def new_maintenance():
     return render_template(
         'fleet/maintenance_form.html',
         form=form,
-        vehicles=_vehicle_choices(exclude_rented=True),
+        vehicles=vehicle_rows,
     )
 
 

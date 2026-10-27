@@ -2,7 +2,7 @@ from flask import Blueprint, abort, flash, redirect, render_template, request
 from flask_login import current_user
 
 from app.auth import role_required
-from app.db import execute, query
+from app.db import query, transaction
 from app.services.rules import is_driver_free, is_vehicle_available
 
 bp = Blueprint('assignments', __name__)
@@ -50,14 +50,19 @@ def assign_driver(rental_id):
             return redirect('/agent/rentals/%d/assign-driver' % rental_id)
 
         old_driver_id = rental['Driver_ID']
-        execute(
-            'UPDATE RENTAL SET Driver_ID = %s, Is_Chauffeur = TRUE WHERE Rental_ID = %s',
-            (driver_id, rental_id))
-        if old_driver_id and old_driver_id != driver_id:
-            execute("UPDATE DRIVER SET Status = 'available' WHERE Driver_ID = %s",
-                    (old_driver_id,))
-        execute("UPDATE DRIVER SET Status = 'assigned' WHERE Driver_ID = %s",
-                (driver_id,))
+        with transaction() as db:
+            with db.cursor() as cur:
+                cur.execute(
+                    'UPDATE RENTAL SET Driver_ID = %s, Is_Chauffeur = TRUE '
+                    'WHERE Rental_ID = %s',
+                    (driver_id, rental_id))
+                if old_driver_id and old_driver_id != driver_id:
+                    cur.execute(
+                        "UPDATE DRIVER SET Status = 'available' WHERE Driver_ID = %s",
+                        (old_driver_id,))
+                cur.execute(
+                    "UPDATE DRIVER SET Status = 'assigned' WHERE Driver_ID = %s",
+                    (driver_id,))
 
         flash('Driver assigned.', 'success')
         return redirect('/agent/rentals/%d' % rental_id)
@@ -111,28 +116,37 @@ def reassign(rental_id):
         old_vehicle_id = rental['Vehicle_ID']
         old_driver_id = rental['Driver_ID']
 
-        execute('UPDATE RENTAL SET Vehicle_ID = %s, Driver_ID = %s WHERE Rental_ID = %s',
-                (new_vehicle_id, new_driver_id, rental_id))
-        if old_vehicle_id != new_vehicle_id:
-            execute("UPDATE VEHICLE SET Status = 'available' WHERE Vehicle_ID = %s",
-                    (old_vehicle_id,))
-            execute("UPDATE VEHICLE SET Status = 'rented' WHERE Vehicle_ID = %s",
-                    (new_vehicle_id,))
-        if old_driver_id != new_driver_id:
-            if old_driver_id:
-                execute("UPDATE DRIVER SET Status = 'available' WHERE Driver_ID = %s",
-                        (old_driver_id,))
-            if new_driver_id:
-                execute("UPDATE DRIVER SET Status = 'assigned' WHERE Driver_ID = %s",
-                        (new_driver_id,))
+        with transaction() as db:
+            with db.cursor() as cur:
+                cur.execute(
+                    'UPDATE RENTAL SET Vehicle_ID = %s, Driver_ID = %s '
+                    'WHERE Rental_ID = %s',
+                    (new_vehicle_id, new_driver_id, rental_id))
+                if old_vehicle_id != new_vehicle_id:
+                    cur.execute(
+                        "UPDATE VEHICLE SET Status = 'available' WHERE Vehicle_ID = %s",
+                        (old_vehicle_id,))
+                    cur.execute(
+                        "UPDATE VEHICLE SET Status = 'rented' WHERE Vehicle_ID = %s",
+                        (new_vehicle_id,))
+                if old_driver_id != new_driver_id:
+                    if old_driver_id:
+                        cur.execute(
+                            "UPDATE DRIVER SET Status = 'available' "
+                            "WHERE Driver_ID = %s",
+                            (old_driver_id,))
+                    if new_driver_id:
+                        cur.execute(
+                            "UPDATE DRIVER SET Status = 'assigned' WHERE Driver_ID = %s",
+                            (new_driver_id,))
 
-        execute(
-            """INSERT INTO ASSIGNMENT_HISTORY
-               (Rental_ID, Old_Vehicle_ID, New_Vehicle_ID,
-                Old_Driver_ID, New_Driver_ID, Changed_By, Reason)
-               VALUES (%s, %s, %s, %s, %s, %s, %s)""",
-            (rental_id, old_vehicle_id, new_vehicle_id,
-             old_driver_id, new_driver_id, current_user.id, reason))
+                cur.execute(
+                    """INSERT INTO ASSIGNMENT_HISTORY
+                       (Rental_ID, Old_Vehicle_ID, New_Vehicle_ID,
+                        Old_Driver_ID, New_Driver_ID, Changed_By, Reason)
+                       VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+                    (rental_id, old_vehicle_id, new_vehicle_id,
+                     old_driver_id, new_driver_id, current_user.id, reason))
 
         flash('Change saved.', 'success')
         return redirect('/fleet/assignment-history')

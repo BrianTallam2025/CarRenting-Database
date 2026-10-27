@@ -1,0 +1,47 @@
+{% extends "shared/base.html" %}
+{% block title %}My assignment | Car Rental{% endblock %}
+{% block nav %}{% include "driver/_nav.html" %}{% endblock %}
+{% block content %}
+<h1>My current assignment</h1>
+
+{% if rental %}
+<section class="card">
+  <h2>{{ rental.Make or 'Vehicle unavailable' }} {{ rental.Model or '' }}{% if rental.Plate_Number %} ({{ rental.Plate_Number }}){% endif %}</h2>
+  <p class="muted">Rental #R-{{ rental.Rental_ID }}</p>
+  <table class="detail">
+    <tr><th>Customer</th><td>{{ rental.First_Name }} {{ rental.Last_Name }}</td></tr>
+    <tr><th>Customer phone</th><td>{{ customer_phone or 'Not provided' }}</td></tr>
+    <tr><th>Pickup</th><td>{{ rental.Rental_Date }}</td></tr>
+    <tr><th>Return due</th><td>{{ rental.Due_Date }}</td></tr>
+  </table>
+</section>
+{% else %}
+<div class="card"><p>No current assignment.</p></div>
+{% endif %}
+
+{% if upcoming %}
+<section class="card">
+  <h2>Upcoming trips</h2>
+  <div class="table-wrap">
+    <table class="list">
+      <thead><tr><th scope="col">Ref</th><th scope="col">Car</th><th scope="col">Pickup</th><th scope="col">Due</th></tr></thead>
+      <tbody>
+      {% for r in upcoming %}
+      <tr>
+        <td>#R-{{ r.Rental_ID }}</td>
+        <td>{{ r.Make or 'Vehicle unavailable' }} {{ r.Model or '' }}</td>
+        <td>{{ r.Rental_Date }}</td>
+        <td>{{ r.Due_Date }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% else %}
+<section class="card">
+  <h2>Upcoming trips</h2>
+  <p class="muted">You have no upcoming trips scheduled.</p>
+</section>
+{% endif %}
+{% endblock %}

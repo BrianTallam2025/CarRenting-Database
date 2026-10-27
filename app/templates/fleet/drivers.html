@@ -1,28 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Drivers | Fleet</title>
-  <!-- F1's shared styles. Missing until main.css is pushed. -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/fleet.css') }}">
-</head>
-<body>
-  <!-- Temporary header and menu so the pages can be opened on their own.
-       Delete this block and use the base template once F1 ships base.html. -->
-  <header class="fleet-temp-header">
-    <strong>Car Rental</strong>
-    <nav aria-label="Fleet">
-      <a href="/fleet">Dashboard</a>
-      <a href="/fleet/vehicles">Cars</a>
-      <a href="/fleet/insurance">Insurance</a>
-      <a href="/fleet/maintenance">Maintenance</a>
-      <a href="/fleet/drivers" class="current">Drivers</a>
-    </nav>
-  </header>
-
-  <main class="fleet-page">
+{% extends "shared/base.html" %}
+{% block title %}Drivers | Fleet{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/fleet.css') }}">
+{% endblock %}
+{% block content %}
     <div class="page-top">
       <h1>Drivers</h1>
       <a class="btn" href="/fleet/drivers/new">Add driver</a>
@@ -35,15 +16,19 @@
             <tr><th>Name</th><th>License number</th><th>Availability</th><th></th></tr>
           </thead>
           <tbody>
-            <!-- {% for d in drivers %}
-            status badge: status-available or status-assigned
-            edit link: /fleet/drivers/{{ d.Driver_ID }}/edit
-            {% endfor %} -->
+            {% for d in drivers %}
+            <tr>
+              <td>{{ d.First_Name }} {{ d.Last_Name }}</td>
+              <td>{{ d.License_Number }}</td>
+              <td><span class="status-badge status-{{ d.Status }}">{{ d.Status }}</span>
+                {% if d.Active_Rentals %} ({{ d.Active_Rentals }} active){% endif %}</td>
+              <td><a class="btn" href="/fleet/drivers/{{ d.Driver_ID }}/edit">Edit</a></td>
+            </tr>
+            {% else %}
             <tr class="empty-row"><td colspan="4">No drivers yet.</td></tr>
+            {% endfor %}
           </tbody>
         </table>
       </div>
     </div>
-  </main>
-</body>
-</html>
+{% endblock %}

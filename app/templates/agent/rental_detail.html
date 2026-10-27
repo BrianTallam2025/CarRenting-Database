@@ -1,47 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Rental #{{ rental.Rental_ID }} | Agent</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/agent.css') }}">
-</head>
-<body>
-  <!-- Temporary header until F1 ships shared/base.html; then use the base template. -->
-  <header class="agent-temp-header">
-    <strong>Car Rental</strong>
-    <nav aria-label="Agent">
-      <a href="/agent">Dashboard</a>
-      <a href="/agent/rentals" class="current">Rentals</a>
-      <a href="/agent/rent">Walk-in</a>
-      <a href="/agent/customers">Customers</a>
-      {% if current_user.role == 'fleet_manager' %}
-      <a href="/fleet/assignment-history">Change history</a>
-      {% endif %}
-    </nav>
-  </header>
-
-  <main class="agent-page">
+{% extends "shared/base.html" %}
+{% block title %}Rental #{{ rental.Rental_ID }} | Agent{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/agent.css') }}">
+{% endblock %}
+{% block content %}
     <h1>Rental #{{ rental.Rental_ID }}</h1>
 
     <section class="card">
       <h2>Customer</h2>
       <p>
+        {% if customer %}
         {{ customer.First_Name }} {{ customer.Last_Name }}<br>
         <span class="muted">{{ customer.Email }} · Tier: {{ customer.Tier }}</span>
+        {% else %}
+        <span class="muted">Customer record not found.</span>
+        {% endif %}
       </p>
     </section>
 
     <section class="card">
       <h2>Vehicle and driver</h2>
       <p>
+        {% if vehicle %}
         {{ vehicle.Make }} {{ vehicle.Model }} ({{ vehicle.Plate_Number }})<br>
         <span class="muted">KES {{ vehicle.Daily_Rate }} per day</span>
+        {% else %}
+        <span class="muted">Vehicle to be assigned.</span>
+        {% endif %}
       </p>
       <p>
         {% if rental.Is_Chauffeur %}
+          {% if driver %}
           Driver: {{ driver.First_Name }} {{ driver.Last_Name }}
+          {% else %}
+          Chauffeur to be assigned
+          {% endif %}
         {% else %}
           Self-drive
         {% endif %}
@@ -64,13 +57,13 @@
     <p class="muted">This rental is closed. No further action is needed.</p>
     {% else %}
     <div class="actions">
+      {% if current_user.role == 'rental_agent' %}
       <a class="btn" href="/agent/rentals/{{ rental.Rental_ID }}/return">Process return</a>
       <a class="btn" href="/agent/rentals/{{ rental.Rental_ID }}/assign-driver">Assign driver</a>
+      {% endif %}
       {% if current_user.role == 'fleet_manager' %}
       <a class="btn" href="/fleet/rentals/{{ rental.Rental_ID }}/reassign">Change car or driver</a>
       {% endif %}
     </div>
     {% endif %}
-  </main>
-</body>
-</html>
+{% endblock %}

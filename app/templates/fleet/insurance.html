@@ -1,28 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Insurance | Fleet</title>
-  <!-- F1's shared styles. Missing until main.css is pushed. -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/fleet.css') }}">
-</head>
-<body>
-  <!-- Temporary header and menu so the pages can be opened on their own.
-       Delete this block and use the base template once F1 ships base.html. -->
-  <header class="fleet-temp-header">
-    <strong>Car Rental</strong>
-    <nav aria-label="Fleet">
-      <a href="/fleet">Dashboard</a>
-      <a href="/fleet/vehicles">Cars</a>
-      <a href="/fleet/insurance" class="current">Insurance</a>
-      <a href="/fleet/maintenance">Maintenance</a>
-      <a href="/fleet/drivers">Drivers</a>
-    </nav>
-  </header>
-
-  <main class="fleet-page">
+{% extends "shared/base.html" %}
+{% block title %}Insurance | Fleet{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/fleet.css') }}">
+{% endblock %}
+{% block content %}
     <h1>Insurance</h1>
 
     <div class="card">
@@ -32,10 +13,17 @@
             <tr><th>Plate</th><th>Car</th><th>Provider</th><th>Expires</th><th>Status</th></tr>
           </thead>
           <tbody>
-            <!-- {% for p in policies %}
-            status badge: status-valid, status-expiring or status-expired
-            {% endfor %} -->
+            {% for p in policies %}
+            <tr>
+              <td>{{ p.Plate_Number }}</td>
+              <td>{{ p.Make }} {{ p.Model }}</td>
+              <td>{{ p.Provider }}</td>
+              <td>{{ p.Expiry_Date }}</td>
+              <td><span class="status-badge status-{{ p.status }}">{{ p.status }}</span></td>
+            </tr>
+            {% else %}
             <tr class="empty-row"><td colspan="5">No policies recorded yet.</td></tr>
+            {% endfor %}
           </tbody>
         </table>
       </div>
@@ -50,7 +38,9 @@
         <label for="vehicle">Car</label>
         <select id="vehicle" name="vehicle_id" required>
           <option value="">Choose a car</option>
-          <!-- {% for v in vehicles %}<option value="{{ v.Vehicle_ID }}">{{ v.Plate_Number }}, {{ v.Make }} {{ v.Model }}</option>{% endfor %} -->
+          {% for v in vehicles %}
+          <option value="{{ v.Vehicle_ID }}">{{ v.Plate_Number }}, {{ v.Make }} {{ v.Model }}</option>
+          {% endfor %}
         </select>
       </div>
 
@@ -68,6 +58,4 @@
         <button class="btn" type="submit">Save policy</button>
       </div>
     </form>
-  </main>
-</body>
-</html>
+{% endblock %}

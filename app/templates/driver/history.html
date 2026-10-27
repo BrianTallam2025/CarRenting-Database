@@ -1,0 +1,27 @@
+{% extends "shared/base.html" %}
+{% block title %}Trip history | Car Rental{% endblock %}
+{% block nav %}{% include "driver/_nav.html" %}{% endblock %}
+{% block content %}
+<h1>Trip history</h1>
+
+{% if trips %}
+<div class="table-wrap">
+  <table class="list">
+    <thead><tr><th scope="col">Ref</th><th scope="col">Car</th><th scope="col">Pickup</th><th scope="col">Due</th><th scope="col">Returned</th></tr></thead>
+    <tbody>
+    {% for r in trips %}
+    <tr>
+      <td>#R-{{ r.Rental_ID }}</td>
+      <td>{{ r.Make or 'Vehicle unavailable' }} {{ r.Model or '' }}{% if r.Plate_Number %} ({{ r.Plate_Number }}){% endif %}</td>
+      <td>{{ r.Rental_Date }}</td>
+      <td>{{ r.Due_Date }}</td>
+      <td>{{ r.Return_Date }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card"><p>No completed trips yet.</p></div>
+{% endif %}
+{% endblock %}
