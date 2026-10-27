@@ -1,0 +1,5 @@
+<nav>
+  <a href="{{ url_for('driver.current') }}" class="{% if request.endpoint == 'driver.current' %}on{% endif %}">Current assignment</a>
+  <a href="{{ url_for('driver.history') }}" class="{% if request.endpoint == 'driver.history' %}on{% endif %}">Trip history</a>
+  <a href="{{ url_for('accounts.logout') }}">Log out</a>
+</nav>

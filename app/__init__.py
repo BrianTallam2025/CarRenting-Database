@@ -18,8 +18,10 @@ def create_app(test_config=None):
     login_manager.init_app(app)
     app.teardown_appcontext(close_db)
 
-    from app.blueprints import main, accounts, rent, assignments, returns, fleet
-    for module in (main, accounts, rent, assignments, returns, fleet):
+    from app.blueprints import (
+        main, accounts, rent, assignments, driver, returns, fleet
+    )
+    for module in (main, accounts, rent, assignments, driver, returns, fleet):
         app.register_blueprint(module.bp)
 
     @app.errorhandler(403)

@@ -41,7 +41,7 @@ INSERT INTO DRIVER (Driver_ID, First_Name, Last_Name, License_Number, Status) VA
 
 -- Rentals: one returned on time, one active, one returned late.
 INSERT INTO RENTAL (Rental_ID, Customer_ID, Vehicle_ID, Driver_ID, Is_Chauffeur, Rental_Date, Due_Date, Return_Date, Total_Cost, Late_Fee) VALUES
-(1, 1, 1, NULL, FALSE, DATE_SUB(CURDATE(), INTERVAL 40 DAY), DATE_SUB(CURDATE(), INTERVAL 37 DAY), DATE_SUB(CURDATE(), INTERVAL 37 DAY), 10500.00,     0.00),
+(1, 1, 1, 1,    TRUE,  DATE_SUB(CURDATE(), INTERVAL 40 DAY), DATE_SUB(CURDATE(), INTERVAL 37 DAY), DATE_SUB(CURDATE(), INTERVAL 37 DAY), 10500.00,     0.00),
 (2, 2, 2, 1,    TRUE,  DATE_SUB(CURDATE(), INTERVAL 5 DAY),  DATE_SUB(CURDATE(), INTERVAL 2 DAY),  NULL,                                 22500.00,     0.00),
 (3, 3, 3, NULL, FALSE, DATE_SUB(CURDATE(), INTERVAL 20 DAY), DATE_SUB(CURDATE(), INTERVAL 18 DAY), DATE_SUB(CURDATE(), INTERVAL 16 DAY),  8000.00, 12000.00);
 

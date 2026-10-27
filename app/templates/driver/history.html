@@ -1,0 +1,23 @@
+{% extends "shared/base.html" %}
+{% block title %}Trip history | Car Rental{% endblock %}
+{% block nav %}{% include "driver/_nav.html" %}{% endblock %}
+{% block content %}
+<h1>Trip history</h1>
+
+{% if trips %}
+<table class="list">
+  <tr><th>Ref</th><th>Car</th><th>Pickup</th><th>Due</th><th>Returned</th></tr>
+  {% for r in trips %}
+  <tr>
+    <td>#R-{{ r.Rental_ID }}</td>
+    <td>{{ r.Make }} {{ r.Model }} ({{ r.Plate_Number }})</td>
+    <td>{{ r.Rental_Date }}</td>
+    <td>{{ r.Due_Date }}</td>
+    <td>{{ r.Return_Date }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<div class="card"><p>No completed trips yet.</p></div>
+{% endif %}
+{% endblock %}
