@@ -11,11 +11,21 @@ from app.services.pricing import late_fee, money
 
 bp = Blueprint('returns', __name__)
 
-RENTAL_SELECT = """SELECT r.*, v.Make, v.Model, v.Plate_Number,
+RENTAL_STATUS = """CASE
+                      WHEN r.Return_Date IS NOT NULL THEN 'returned'
+                      WHEN r.Due_Date < CURDATE() THEN 'overdue'
+                      ELSE 'active'
+                    END"""
+
+RENTAL_SELECT = f"""SELECT r.*, v.Make, v.Model, v.Plate_Number, v.Daily_Rate,
                           c.First_Name AS Customer_First_Name,
                           c.Last_Name AS Customer_Last_Name,
+                          c.Email AS Customer_Email,
+                          c.Tier AS Customer_Tier,
                           d.First_Name AS Driver_First_Name,
-                          d.Last_Name AS Driver_Last_Name
+                          d.Last_Name AS Driver_Last_Name,
+                          {RENTAL_STATUS} AS status,
+                          DATEDIFF(CURDATE(), r.Due_Date) AS days_late
                    FROM RENTAL r
                    JOIN CUSTOMER c ON c.Customer_ID = r.Customer_ID
                    LEFT JOIN VEHICLE v ON v.Vehicle_ID = r.Vehicle_ID
@@ -77,7 +87,9 @@ def _rental_bundle(rental_id):
 @role_required('customer')
 def my_rentals():
     rentals = query(
-        """SELECT r.*, v.Make, v.Model, v.Plate_Number
+        f"""SELECT r.*, v.Make, v.Model, v.Plate_Number,
+                  r.Total_Cost + r.Late_Fee AS amount_due,
+                  {RENTAL_STATUS} AS status
            FROM RENTAL r
            LEFT JOIN VEHICLE v ON v.Vehicle_ID = r.Vehicle_ID
            WHERE r.Customer_ID = %s
@@ -317,7 +329,10 @@ def process_return(rental_id):
                 db.rollback()
                 raise
 
-    rental, customer, vehicle, driver = _rental_bundle(rental_id)
+        rental, customer, vehicle, driver = _rental_bundle(rental_id)
+        if rental is None:
+            abort(404)
+
     if rental['Return_Date'] is not None:
         display_date = rental['Return_Date']
         days_late = max(0, (display_date - rental['Due_Date']).days)
@@ -329,9 +344,13 @@ def process_return(rental_id):
         preview_fee = (
             late_fee(vehicle['Daily_Rate'], rental['Due_Date'], preview_date)
             if vehicle and vehicle['Daily_Rate'] is not None
-            else money(0)
+            else None
         )
-    amount_due = money((rental['Total_Cost'] or 0) + preview_fee)
+    amount_due = (
+        money((rental['Total_Cost'] or 0) + preview_fee)
+        if preview_fee is not None
+        else None
+    )
 
     return render_template(
         'agent/return.html',
@@ -361,18 +380,16 @@ def customers():
                    OR License_Number LIKE %s"""
         params = (pattern,) * 5
     customer_rows = query(
-        f"""SELECT Customer_ID, First_Name, Last_Name, Email, National_ID,
-                   License_Number, License_Expiry, Tier
+        f"""SELECT Customer_ID, First_Name, Last_Name, Email, Tier
             FROM CUSTOMER {where}
             ORDER BY Last_Name, First_Name
             LIMIT 200""",
         params,
     )
-
+    selected_id = request.args.get('selected', type=int)
     selected = None
     rentals = []
-    selected_id = request.args.get('selected', type=int)
-    if selected_id:
+    if selected_id is not None:
         selected = query(
             """SELECT Customer_ID, First_Name, Last_Name, Email, National_ID,
                       License_Number, License_Expiry, Tier
@@ -380,7 +397,7 @@ def customers():
             (selected_id,),
             one=True,
         )
-        if selected:
+        if selected is not None:
             rentals = query(
                 """SELECT r.Rental_ID, r.Rental_Date, r.Due_Date, v.Make, v.Model
                    FROM RENTAL r
@@ -389,7 +406,6 @@ def customers():
                    ORDER BY r.Rental_Date DESC, r.Rental_ID DESC""",
                 (selected_id,),
             )
-
     return render_template(
         'agent/customers.html',
         customers=customer_rows,

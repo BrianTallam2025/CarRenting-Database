@@ -1,5 +1,6 @@
 import unittest
-from datetime import date
+from contextlib import contextmanager
+from datetime import date, timedelta
 from decimal import Decimal
 from unittest.mock import patch
 
@@ -76,6 +77,121 @@ class RouteRegistrationTests(unittest.TestCase):
                 '/fleet/maintenance/<int:maintenance_id>/complete',
             }.issubset(routes)
         )
+
+
+class B2PageContractTests(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app(
+            {
+                'TESTING': True,
+                'WTF_CSRF_ENABLED': False,
+                'SECRET_KEY': 'test-secret',
+            }
+        )
+        self.client = self.app.test_client()
+
+    @contextmanager
+    def login(self, role):
+        user = {
+            'User_ID': 1,
+            'Email': 'test@example.com',
+            'Role': role,
+            'Customer_ID': 1 if role == 'customer' else None,
+            'Driver_ID': None,
+        }
+        with patch('app.auth.query', return_value=user):
+            with self.client.session_transaction() as session:
+                session['_user_id'] = '1'
+                session['_fresh'] = True
+            yield
+
+    def test_return_page_renders_late_fee_preview_and_amount_due(self):
+        rental = {
+            'Rental_ID': 7,
+            'Rental_Date': date.today() - timedelta(days=3),
+            'Due_Date': date.today() - timedelta(days=2),
+            'Return_Date': None,
+            'Total_Cost': Decimal('9975.00'),
+            'Late_Fee': Decimal('0.00'),
+            'Is_Chauffeur': False,
+            'Customer_ID': 1,
+            'Vehicle_ID': 1,
+            'Driver_ID': None,
+        }
+        customer = {
+            'First_Name': 'Amina',
+            'Last_Name': 'Wanjiru',
+            'Email': 'amina@example.com',
+            'Tier': 'silver',
+        }
+        vehicle = {
+            'Make': 'Toyota',
+            'Model': 'Corolla',
+            'Plate_Number': 'KDA 101A',
+            'Daily_Rate': Decimal('3500.00'),
+        }
+        with self.login('rental_agent'):
+            with patch(
+                'app.blueprints.returns.query',
+                side_effect=[rental, customer, vehicle],
+            ):
+                response = self.client.get('/agent/rentals/7/return')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Amina Wanjiru', response.data)
+        self.assertIn(b'KES 3500.00/day', response.data)
+        self.assertIn(b'KES 10500.00', response.data)
+        self.assertIn(b'KES 20475.00', response.data)
+        self.assertIn(b'name="return_date"', response.data)
+
+    def test_agent_dashboard_uses_contract_context_names(self):
+        counts = {'active': 2, 'due_today': 1, 'overdue': 1, 'available': 3}
+        due_today = [{'Rental_ID': 1}]
+        overdue = [{'Rental_ID': 2, 'days_late': 2}]
+        with self.login('rental_agent'):
+            with patch(
+                'app.blueprints.returns.query',
+                side_effect=[counts, due_today, overdue],
+            ):
+                with patch(
+                    'app.blueprints.returns.render_template',
+                    return_value='dashboard',
+                ) as render:
+                    response = self.client.get('/agent')
+
+        self.assertEqual(response.status_code, 200)
+        context = render.call_args.kwargs
+        self.assertEqual(context['counts'], counts)
+        self.assertEqual(context['due_today'], due_today)
+        self.assertEqual(context['overdue'], overdue)
+        self.assertNotIn('summary', context)
+
+    def test_customer_lookup_includes_selected_customer_rentals(self):
+        customers = [{'Customer_ID': 1, 'First_Name': 'Amina'}]
+        selected = {
+            'Customer_ID': 1,
+            'First_Name': 'Amina',
+            'Last_Name': 'Wanjiru',
+            'Tier': 'silver',
+        }
+        rentals = [{'Rental_ID': 9, 'Make': 'Toyota', 'Model': 'Corolla'}]
+        with self.login('rental_agent'):
+            with patch(
+                'app.blueprints.returns.query',
+                side_effect=[customers, selected, rentals],
+            ) as query_mock:
+                with patch(
+                    'app.blueprints.returns.render_template',
+                    return_value='customers',
+                ) as render:
+                    response = self.client.get('/agent/customers?q=Amina&selected=1')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('License_Number', query_mock.call_args_list[0].args[0])
+        context = render.call_args.kwargs
+        self.assertEqual(context['customers'], customers)
+        self.assertEqual(context['selected'], selected)
+        self.assertEqual(context['rentals'], rentals)
 
 
 if __name__ == '__main__':
