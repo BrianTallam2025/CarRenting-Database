@@ -1054,7 +1054,22 @@ Then open a pull request on GitHub. Tallam reviews and merges it. Keep pull requ
 
 ### One test per rule
 
-B2 writes each as a SQL script in `tests/`. Each one runs the bad action and confirms it is blocked (or the good action gives the right number).
+`tests/test_b2_database.py` exercises these cases against a fresh, isolated MySQL database.
+It sends rental, return, maintenance and reassignment actions through the Flask routes, then
+checks the database state. Rules enforced by Python cannot be tested by standalone SQL alone;
+the integration tests use SQL to set up fixtures and verify the outcomes.
+
+Run the B2 database tests from PowerShell with a MySQL account that can create and drop
+databases:
+
+```powershell
+$env:RUN_MYSQL_TESTS = '1'
+py -m unittest discover -s tests -p test_b2_database.py -v
+Remove-Item Env:RUN_MYSQL_TESTS
+```
+
+The test suite creates a uniquely named `car_rental_b2_test_*` database and drops only that
+database when finished. Do not point the suite at a production server.
 
 | Rule | Test | Expected |
 |---|---|---|
