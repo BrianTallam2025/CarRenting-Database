@@ -1,10 +1,10 @@
 import os
+import sys
 import unittest
 from datetime import date, timedelta
 from pathlib import Path
 
-import pymysql
-from werkzeug.security import generate_password_hash
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 # Route tests get their own database. They never touch the demo `car_rental` DB.
 TEST_DB = 'car_rental_b1_test'
@@ -12,10 +12,12 @@ os.environ['DB_NAME'] = TEST_DB
 
 from app import create_app  # noqa: E402
 from app.config import DB_CONFIG  # noqa: E402
-
-DB_CONFIG['database'] = TEST_DB
-ROOT = Path(__file__).resolve().parents[1]
-PASSWORD_HASH = generate_password_hash('demo1234')
+from db_support import (  # noqa: E402
+    create_accounts,
+    drop_database,
+    fetchone,
+    run_sql_file,
+)
 
 ACCOUNTS = [
     ('customer@example.com', 'customer', 1, None),
@@ -26,86 +28,25 @@ ACCOUNTS = [
 ]
 
 
-def _admin_connection():
-    config = dict(DB_CONFIG)
-    config.pop('database', None)
-    return pymysql.connect(cursorclass=pymysql.cursors.DictCursor, **config)
-
-
 def _drop_database():
-    connection = _admin_connection()
-    try:
-        with connection.cursor() as cur:
-            cur.execute(f'DROP DATABASE IF EXISTS `{TEST_DB}`')
-        connection.commit()
-    finally:
-        connection.close()
+    drop_database(DB_CONFIG, TEST_DB)
 
 
 def _run_sql_file(filename):
-    sql = (ROOT / filename).read_text().replace('car_rental', TEST_DB)
-    connection = _admin_connection()
-    delimiter = ';'
-    buffer = []
-    try:
-        with connection.cursor() as cur:
-            for line in sql.splitlines():
-                stripped = line.strip()
-                if not stripped or stripped.startswith('--'):
-                    continue
-                if stripped.upper().startswith('DELIMITER '):
-                    delimiter = stripped.split(None, 1)[1]
-                    continue
-
-                buffer.append(line)
-                if not stripped.endswith(delimiter):
-                    continue
-
-                statement = '\n'.join(buffer).strip()
-                statement = statement[:-len(delimiter)].strip()
-                if statement:
-                    cur.execute(statement)
-                buffer = []
-
-            if buffer:
-                statement = '\n'.join(buffer).strip()
-                if statement:
-                    cur.execute(statement)
-        connection.commit()
-    finally:
-        connection.close()
+    run_sql_file(DB_CONFIG, TEST_DB, filename)
 
 
 def _create_accounts():
-    connection = pymysql.connect(cursorclass=pymysql.cursors.DictCursor, **DB_CONFIG)
-    try:
-        with connection.cursor() as cur:
-            cur.executemany(
-                """INSERT INTO USER_ACCOUNT
-                   (Email, Password_Hash, Role, Customer_ID, Driver_ID)
-                   VALUES (%s, %s, %s, %s, %s)""",
-                [
-                    (email, PASSWORD_HASH, role, customer_id, driver_id)
-                    for email, role, customer_id, driver_id in ACCOUNTS
-                ],
-            )
-        connection.commit()
-    finally:
-        connection.close()
+    create_accounts(DB_CONFIG, ACCOUNTS)
 
 
 def _fetchone(sql, params=()):
-    connection = pymysql.connect(cursorclass=pymysql.cursors.DictCursor, **DB_CONFIG)
-    try:
-        with connection.cursor() as cur:
-            cur.execute(sql, params)
-            return cur.fetchone()
-    finally:
-        connection.close()
+    return fetchone(DB_CONFIG, sql, params)
 
 
 class B1RouteTests(unittest.TestCase):
     def setUp(self):
+        DB_CONFIG['database'] = TEST_DB
         _drop_database()
         _run_sql_file('schema.sql')
         _run_sql_file('seed.sql')

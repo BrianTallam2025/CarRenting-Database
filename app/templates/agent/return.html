@@ -6,12 +6,6 @@
 {% block content %}
     <h1>Process return</h1>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% for category, message in messages %}
-      <p class="flash flash-{{ category }}" role="alert">{{ message }}</p>
-      {% endfor %}
-    {% endwith %}
-
     <section class="card">
       <h2>Rental #{{ rental.Rental_ID }}</h2>
       <p>

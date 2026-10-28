@@ -148,7 +148,7 @@ car-rental/
 ├── schema.sql                 # all tables, trigger                                       (B2)
 ├── seed.sql                   # sample cars, customers, drivers                           (B2)
 ├── seed_users.py              # creates login accounts with hashed passwords              (B2)
-├── tests/                     # SQL test scripts, one per business rule                   (B2)
+├── tests/                     # rule and route tests on throwaway databases               (B2, B1)
 ├── API_CONTRACT.md            # every page: route, roles, variables, form fields          (B1)
 ├── requirements.txt
 ├── .env.example
@@ -1054,7 +1054,15 @@ Then open a pull request on GitHub. Tallam reviews and merges it. Keep pull requ
 
 ### One test per rule
 
-B2 writes each as a SQL script in `tests/`. Each one runs the bad action and confirms it is blocked (or the good action gives the right number).
+B2 writes each as a database test in `tests/test_b2_rules.py`. Each one runs the bad action against a throwaway copy of the schema and confirms it is blocked (or the good action gives the right number). The tests never touch the demo `car_rental` database.
+
+Run the whole suite from the project root:
+
+```
+python -m unittest discover -s tests -q
+```
+
+The rule tests need the MySQL server to be running. Each test module creates its own database (`car_rental_rules_test`, `car_rental_b1_test`) and drops it at the end.
 
 | Rule | Test | Expected |
 |---|---|---|
