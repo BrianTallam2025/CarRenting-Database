@@ -149,6 +149,7 @@ car-rental/
 ├── seed.sql                   # sample cars, customers, drivers                           (B2)
 ├── seed_users.py              # creates login accounts with hashed passwords              (B2)
 ├── tests/                     # rule and route tests on throwaway databases               (B1, B2, F4)
+├── ERD.md                     # entity relationship diagram (Mermaid)
 ├── API_CONTRACT.md            # every page: route, roles, variables, form fields          (B1)
 ├── requirements.txt
 ├── .env.example
@@ -292,6 +293,8 @@ Nine tables. The full script lives in `schema.sql` (B2 owns it, and it is frozen
 - One car has one insurance policy, many rentals and many maintenance jobs.
 - One rental belongs to one customer, one car and optionally one driver.
 - A `USER_ACCOUNT` links to at most one customer or one driver. Agents and managers link to neither.
+
+The diagram lives in [`ERD.md`](ERD.md). It is Mermaid source, so GitHub renders it.
 
 ### schema.sql
 
