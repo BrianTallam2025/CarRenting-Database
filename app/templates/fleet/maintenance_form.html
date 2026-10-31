@@ -7,34 +7,32 @@
     <h1>Schedule maintenance</h1>
 
     <form class="card form-layout" action="/fleet/maintenance/new" method="post">
-      <!-- The backend rejects a car that is rented out or already has an active job.
-           Show its message in the flash area. -->
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      {{ form.hidden_tag() }}
 
       <div class="form-field">
-        <label for="vehicle">Car</label>
-        <select id="vehicle" name="vehicle_id" required>
-          <option value="">Choose a car</option>
-          {% for v in vehicles %}
-          <option value="{{ v.Vehicle_ID }}">{{ v.Plate_Number }}, {{ v.Make }} {{ v.Model }}</option>
-          {% endfor %}
-        </select>
+        {{ form.vehicle_id.label }}
+        {{ form.vehicle_id(required=true) }}
+        {% for error in form.vehicle_id.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+        <span class="muted">Rented cars are not listed; finish the rental first.</span>
       </div>
 
       <div class="form-row">
         <div class="form-field">
-          <label for="start">Start date</label>
-          <input id="start" type="date" name="start_date" required>
+          {{ form.start_date.label }}
+          {{ form.start_date(required=true) }}
+          {% for error in form.start_date.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
         </div>
         <div class="form-field">
-          <label for="end">End date</label>
-          <input id="end" type="date" name="end_date">
+          {{ form.end_date.label }}
+          {{ form.end_date() }}
+          {% for error in form.end_date.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
         </div>
       </div>
 
       <div class="form-field">
-        <label for="description">Description</label>
-        <textarea id="description" name="description" required></textarea>
+        {{ form.description.label }}
+        {{ form.description(required=true) }}
+        {% for error in form.description.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
       </div>
 
       <div class="form-actions">

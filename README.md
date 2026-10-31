@@ -1054,15 +1054,15 @@ Then open a pull request on GitHub. Tallam reviews and merges it. Keep pull requ
 
 ### One test per rule
 
-B2 writes each as a database test in `tests/test_b2_rules.py`. Each one runs the bad action against a throwaway copy of the schema and confirms it is blocked (or the good action gives the right number). The tests never touch the demo `car_rental` database.
+B2 writes each as a database test in `tests/test_b2_database.py`. Each one runs the action against a throwaway copy of the schema and confirms it is blocked (or the good action gives the right number). The tests use SQL to set up fixtures because rules enforced in Python cannot be checked by standalone SQL alone.
 
-Run the whole suite from the project root:
+Run the whole suite from the project root. The MySQL server must be running:
 
 ```
 python -m unittest discover -s tests -q
 ```
 
-The rule tests need the MySQL server to be running. Each test module creates its own database (`car_rental_rules_test`, `car_rental_b1_test`) and drops it at the end.
+Each test module creates its own throwaway database (`car_rental_b2_test_*`, `car_rental_b1_test`, `car_rental_f4_test`) and drops it at the end, so the demo `car_rental` database is never touched.
 
 | Rule | Test | Expected |
 |---|---|---|
@@ -1093,14 +1093,16 @@ The rule tests need the MySQL server to be running. Each test module creates its
 
 ## 17. Security checklist
 
-- [ ] Passwords are stored only as hashes (`generate_password_hash`), never plain text
-- [ ] Every route has `@role_required`, except the public ones (landing, login, register)
-- [ ] Every form includes `form.hidden_tag()` (CSRF)
-- [ ] All SQL uses `%s` placeholders, never string formatting
-- [ ] Customers and drivers only ever load their own data, using the ID from the session, not the URL
-- [ ] The server recalculates prices and rechecks the rules, never trusting the browser
-- [ ] `.env` and `venv/` are in `.gitignore`
-- [ ] `SECRET_KEY` is a long random string, not `dev-only-change-me`
+Checked at review time; the tests and the code below are the evidence.
+
+- [x] Passwords are stored only as hashes (`generate_password_hash`), never plain text — `accounts.py` and `seed_users.py`
+- [x] Every route has `@role_required`, except the public ones (landing, login, register) — `logout` clears the session and needs no role
+- [x] Every form includes `form.hidden_tag()` (CSRF) — the three GET search forms carry no token because they do not write anything
+- [x] All SQL uses `%s` placeholders, never string formatting — the only f-strings build fixed `WHERE`/column lists from constants
+- [x] Customers and drivers only ever load their own data, using the ID from the session, not the URL
+- [x] The server recalculates prices and rechecks the rules, never trusting the browser
+- [x] `.env` and `venv/` are in `.gitignore`, and neither is tracked by git
+- [x] `SECRET_KEY` is a long random string, not `dev-only-change-me` — the local `.env` holds a 64-character value
 - [ ] Demo passwords are changed before anything is shown outside the team
 
 ---

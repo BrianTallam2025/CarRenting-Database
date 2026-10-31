@@ -6,45 +6,47 @@
 {% block content %}
     <h1>{% if vehicle %}Edit car{% else %}Add car{% endif %}</h1>
 
-    <!-- One page for both, per the README. The route sends `vehicle` when editing. -->
     <form class="card form-layout"
           action="{% if vehicle %}/fleet/vehicles/{{ vehicle.Vehicle_ID }}/edit{% else %}/fleet/vehicles/new{% endif %}"
           method="post">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      {{ form.hidden_tag() }}
 
       <div class="form-row">
         <div class="form-field">
-          <label for="vin">VIN</label>
-          <input id="vin" name="vin" value="{{ vehicle.VIN if vehicle else '' }}" required>
+          {{ form.vin.label }}
+          {{ form.vin(required=true, placeholder='17 characters') }}
+          {% for error in form.vin.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
         </div>
         <div class="form-field">
-          <label for="plate">Plate number</label>
-          <input id="plate" name="plate_number" placeholder="KDA 123A"
-                 value="{{ vehicle.Plate_Number if vehicle else '' }}" required>
+          {{ form.plate_number.label }}
+          {{ form.plate_number(required=true, placeholder='KDA 123A') }}
+          {% for error in form.plate_number.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-field">
-          <label for="make">Make</label>
-          <input id="make" name="make" value="{{ vehicle.Make if vehicle else '' }}" required>
+          {{ form.make.label }}
+          {{ form.make(required=true) }}
+          {% for error in form.make.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
         </div>
         <div class="form-field">
-          <label for="model">Model</label>
-          <input id="model" name="model" value="{{ vehicle.Model if vehicle else '' }}" required>
+          {{ form.model.label }}
+          {{ form.model(required=true) }}
+          {% for error in form.model.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-field">
-          <label for="year">Year</label>
-          <input id="year" type="number" name="year" min="1990" max="2030"
-                 value="{{ vehicle.Year if vehicle else '' }}" required>
+          {{ form.year.label }}
+          {{ form.year(required=true, min=1990, max=2030) }}
+          {% for error in form.year.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
         </div>
         <div class="form-field">
-          <label for="rate">Daily rate (KES)</label>
-          <input id="rate" type="number" name="daily_rate" min="0"
-                 value="{{ vehicle.Daily_Rate if vehicle else '' }}" required>
+          {{ form.daily_rate.label }}
+          {{ form.daily_rate(required=true, min='0.01', step='0.01') }}
+          {% for error in form.daily_rate.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
         </div>
       </div>
 

@@ -20,14 +20,15 @@ def _vehicle_rows(include_rented=True):
     )
 
 
-def _vehicle_choices(vehicles):
-    return [
+def _vehicle_choices(vehicles, blank=False):
+    choices = [
         (
             row['Vehicle_ID'],
             f"{row['Make']} {row['Model']} ({row['Plate_Number']})",
         )
         for row in vehicles
     ]
+    return ([(0, 'Choose a car')] if blank else []) + choices
 
 
 @bp.route('/fleet')
@@ -184,7 +185,7 @@ def edit_vehicle(vehicle_id):
 def insurance():
     vehicle_rows = _vehicle_rows()
     form = InsuranceForm()
-    form.vehicle_id.choices = _vehicle_choices(vehicle_rows)
+    form.vehicle_id.choices = _vehicle_choices(vehicle_rows, blank=True)
     if form.validate_on_submit():
         db = get_db()
         try:
@@ -247,7 +248,6 @@ def insurance():
         'fleet/insurance.html',
         form=form,
         policies=policies,
-        vehicles=vehicle_rows,
     )
 
 
@@ -273,7 +273,7 @@ def maintenance():
 def new_maintenance():
     vehicle_rows = _vehicle_rows(include_rented=False)
     form = MaintenanceForm()
-    form.vehicle_id.choices = _vehicle_choices(vehicle_rows)
+    form.vehicle_id.choices = _vehicle_choices(vehicle_rows, blank=True)
     if form.validate_on_submit():
         if form.end_date.data and form.end_date.data < form.start_date.data:
             flash('The expected end date cannot be before the start date.', 'error')
@@ -323,7 +323,6 @@ def new_maintenance():
     return render_template(
         'fleet/maintenance_form.html',
         form=form,
-        vehicles=vehicle_rows,
     )
 
 

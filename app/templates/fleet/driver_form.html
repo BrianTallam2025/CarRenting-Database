@@ -9,23 +9,25 @@
     <form class="card form-layout"
           action="{% if driver %}/fleet/drivers/{{ driver.Driver_ID }}/edit{% else %}/fleet/drivers/new{% endif %}"
           method="post">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      {{ form.hidden_tag() }}
 
       <div class="form-row">
         <div class="form-field">
-          <label for="first_name">First name</label>
-          <input id="first_name" name="first_name" value="{{ driver.First_Name if driver else '' }}" required>
+          {{ form.first_name.label }}
+          {{ form.first_name(required=true) }}
+          {% for error in form.first_name.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
         </div>
         <div class="form-field">
-          <label for="last_name">Last name</label>
-          <input id="last_name" name="last_name" value="{{ driver.Last_Name if driver else '' }}" required>
+          {{ form.last_name.label }}
+          {{ form.last_name(required=true) }}
+          {% for error in form.last_name.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
         </div>
       </div>
 
       <div class="form-field">
-        <label for="license">License number</label>
-        <input id="license" name="license_number"
-               value="{{ driver.License_Number if driver else '' }}" required>
+        {{ form.license_number.label }}
+        {{ form.license_number(required=true) }}
+        {% for error in form.license_number.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
       </div>
 
       <div class="form-actions">
