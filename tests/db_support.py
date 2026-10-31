@@ -105,26 +105,3 @@ def fetchone(config, sql, params=()):
             return cur.fetchone()
     finally:
         link.close()
-
-
-def fetchall(config, sql, params=()):
-    link = _connect(config)
-    try:
-        with link.cursor() as cur:
-            cur.execute(sql, params)
-            return cur.fetchall()
-    finally:
-        link.close()
-
-
-def execute(config, sql, params=()):
-    """Run one statement and commit. Returns lastrowid for inserts."""
-    link = _connect(config)
-    try:
-        with link.cursor() as cur:
-            cur.execute(sql, params)
-            last_id = cur.lastrowid
-        link.commit()
-        return last_id
-    finally:
-        link.close()

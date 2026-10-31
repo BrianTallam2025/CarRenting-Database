@@ -356,7 +356,7 @@ car-rental/
 ├── schema.sql                 # all tables, trigger                                      (B2)
 ├── seed.sql                   # sample cars, customers, drivers                          (B2)
 ├── seed_users.py              # creates login accounts with hashed passwords             (B2)
-├── tests/                     # rule and route tests on throwaway databases              (B2, B1)
+├── tests/                     # rule and route tests on throwaway databases              (B1, B2, F4)
 ├── API_CONTRACT.md            # every page: route, roles, variables, form fields         (B1)
 ├── requirements.txt
 ├── .env.example
