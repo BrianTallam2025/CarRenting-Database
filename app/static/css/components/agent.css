@@ -1,85 +1,81 @@
-/* Rental agent pages (F3): agent layout, data table, status pills and form layout.
-   main.css belongs to F1 and fleet.css to F4, so nothing here edits them. */
-
-/* agent layout */
-.agent-page { max-width: 72rem; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+/* Rental agent pages (F3): summary numbers, rental table, status pills, forms. */
 
 /* summary numbers on the dashboard */
 .metrics {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
   gap: 1rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
 }
-.metric { display: flex; flex-direction: column; gap: 0.25rem; }
-.metric-number { font-size: 1.9rem; font-weight: 700; line-height: 1; }
-.metric-label { color: #555; font-size: 0.9rem; }
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.metric-number { font-size: 2rem; font-weight: 800; line-height: 1; letter-spacing: -0.03em; }
+.metric-label { color: var(--muted); font-size: 0.88rem; }
 
-/* data table (F3 component) */
-.table-wrap { overflow-x: auto; }
+/* rental table: same ink header and warm hover as main.css, tighter padding */
 .data-table { width: 100%; border-collapse: collapse; }
 .data-table th,
 .data-table td {
-  text-align: left;
   padding: 0.55rem 0.7rem;
-  border-bottom: 1px solid #e3e3e3;
+  text-align: left;
   vertical-align: top;
+  border-bottom: 1px solid var(--line);
 }
-.data-table th { background: #f0f0f0; white-space: nowrap; }
-.data-table tbody tr:hover { background: #fafafa; }
-.empty-row td { text-align: center; color: #666; padding: 1.25rem; }
+.data-table th { background: var(--ink); color: var(--surface); white-space: nowrap; }
+.data-table tbody tr:hover { background: #f6efe2; }
+.empty-row td { padding: 1.5rem; text-align: center; color: var(--muted); }
 
-/* rental status pills (kept inside the F3 pages) */
+/* rental status pills */
 .pill {
   display: inline-block;
-  padding: 2px 10px;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  padding: 0.12rem 0.6rem;
+  border-radius: 999px;
+  background: #ece4d5;
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 700;
   text-transform: capitalize;
-  background: #e6e6e6;
-  color: #333;
 }
 .pill-active   { background: #dbe8f5; color: #1c4a78; }
-.pill-overdue  { background: #f6d9d4; color: #8a2a1b; }
-.pill-returned { background: #dcf0e3; color: #1d5c36; }
+.pill-overdue  { background: #f8d9d2; color: #7a2617; }
+.pill-returned { background: #d7ecdf; color: #14532d; }
 
 /* forms on agent pages */
-.agent-form { max-width: 40rem; }
+.agent-form { max-width: 44rem; }
 .field { margin-bottom: 1rem; }
-.field label,
-.field legend { display: block; margin-bottom: 0.25rem; font-weight: 600; }
-.field input,
-.field select,
-.field textarea {
-  width: 100%;
-  padding: 0.5rem;
-  font: inherit;
-  border: 1px solid #999;
-  border-radius: 4px;
+.field legend { padding: 0 0.35rem; font-weight: 650; }
+fieldset.field {
+  padding: 0.75rem 1rem 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
 }
-.field textarea { min-height: 5rem; resize: vertical; }
-fieldset.field { border: 1px solid #ddd; border-radius: 4px; padding: 0.75rem 1rem 0; }
-fieldset.field legend { padding: 0 0.35rem; }
-.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 0 1rem; }
-.form-actions { display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem; }
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0 1rem;
+}
+.form-actions { display: flex; align-items: center; gap: 0.85rem; margin-top: 0.75rem; }
 .checkbox { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
 .checkbox input { width: auto; }
-.checkbox label { margin: 0; font-weight: 600; }
+.checkbox label { margin: 0; }
 
 /* rental detail totals */
-.totals { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem; }
+.totals { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-bottom: 1.5rem; }
 .total-box {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
-  padding: 0.6rem 0.9rem;
-  background: #f7f7f7;
-  border: 1px solid #e3e3e3;
-  border-radius: 4px;
+  gap: 0.1rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
 }
-.total-box span { color: #666; font-size: 0.8rem; }
+.total-box span { color: var(--muted); font-size: 0.8rem; }
 .total-box strong { font-size: 1.05rem; }
-
-.actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
-.muted { color: #666; }

@@ -7,9 +7,9 @@
    <span class="tag">{{ customer.Tier }}</span> customer.</p>
 
 <div class="stats">
-  <div class="card"><h3>{{ 1 if active_rental else 0 }}</h3><p>Active rental</p></div>
-  <div class="card"><h3>{{ rental_count }}</h3><p>Total rentals</p></div>
-  <div class="card"><h3>{{ available_count }}</h3><p>Cars available</p></div>
+  <div class="card"><p class="stat-figure">{{ 1 if active_rental else 0 }}</p><p class="muted">Active rental</p></div>
+  <div class="card"><p class="stat-figure">{{ rental_count }}</p><p class="muted">Total rentals</p></div>
+  <div class="card"><p class="stat-figure">{{ available_count }}</p><p class="muted">Cars available</p></div>
 </div>
 
 {% if active_rental %}

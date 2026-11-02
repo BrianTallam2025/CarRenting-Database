@@ -358,6 +358,7 @@ car-rental/
 ├── seed_users.py              # creates login accounts with hashed passwords             (B2)
 ├── tests/                     # rule and route tests on throwaway databases              (B1, B2, F4)
 ├── ERD.md                     # entity relationship diagram (Mermaid)
+├── DESIGN.md                  # palette, type and copy rules for the frontend
 ├── API_CONTRACT.md            # every page: route, roles, variables, form fields         (B1)
 ├── requirements.txt
 ├── .env.example

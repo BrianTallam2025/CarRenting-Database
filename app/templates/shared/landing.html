@@ -1,21 +1,69 @@
 {% extends "shared/base.html" %}
-{% block title %}Car Rental{% endblock %}
+{% block title %}Car Rental &mdash; drive what fits the trip{% endblock %}
 {% block content %}
+{% set hero_car = featured_vehicles[0] if featured_vehicles else None %}
+
 <section class="hero">
-  <h1>Drive what fits the trip.</h1>
-  <p>Browse the fleet, pick your dates, and rent in minutes. Self-drive or with a chauffeur.</p>
-  <p class="actions">
-    <a class="btn" href="{{ url_for('accounts.login') }}">Log in to rent</a>
-    <a class="btn alt" href="{{ url_for('accounts.register') }}">Create an account</a>
-  </p>
+  <div class="hero-copy">
+    <h1>Drive what fits the trip.</h1>
+    <p class="hero-lead">
+      A compact for the school run, a 4x4 for the weekend, a chauffeur for the
+      meeting. Pick your dates and we handle the rest.
+    </p>
+    <p class="actions">
+      {% if current_user.is_authenticated %}
+        {% if current_user.role == 'customer' %}
+        <a class="btn" href="{{ url_for('rent.vehicles') }}">Browse the fleet</a>
+        <a class="btn alt" href="{{ url_for('returns.my_rentals') }}">My rentals</a>
+        {% elif current_user.role == 'rental_agent' %}
+        <a class="btn" href="{{ url_for('returns.dashboard') }}">Open the agent desk</a>
+        {% elif current_user.role == 'fleet_manager' %}
+        <a class="btn" href="{{ url_for('fleet.dashboard') }}">Open the fleet board</a>
+        {% elif current_user.role == 'driver' %}
+        <a class="btn" href="{{ url_for('driver.current') }}">See today's job</a>
+        {% endif %}
+      {% else %}
+        <a class="btn" href="{{ url_for('accounts.login') }}">Log in to rent</a>
+        <a class="btn alt" href="{{ url_for('accounts.register') }}">Create an account</a>
+      {% endif %}
+    </p>
+    {% if not current_user.is_authenticated %}
+    <p class="hero-note">
+      New here? An account takes a minute and keeps your rentals in one place.
+    </p>
+    {% endif %}
+  </div>
+
+  {% if hero_car %}
+  <a class="hero-car"
+     href="{% if current_user.is_authenticated and current_user.role == 'customer' %}{{ url_for('rent.vehicle_detail', vehicle_id=hero_car.Vehicle_ID) }}{% else %}{{ url_for('accounts.login') }}{% endif %}">
+    <span class="hero-car-art" aria-hidden="true">🚗</span>
+    <span class="hero-car-meta">
+      <strong>{{ hero_car.Make }} {{ hero_car.Model }}</strong>
+      <span>{{ hero_car.Year }} &middot; KES {{ '{:,.0f}'.format(hero_car.Daily_Rate) }} per day</span>
+    </span>
+    <span class="hero-car-go">
+      {% if current_user.is_authenticated and current_user.role == 'customer' %}
+        See this car &rarr;
+      {% else %}
+        Log in to book it &rarr;
+      {% endif %}
+    </span>
+  </a>
+  {% endif %}
 </section>
 
-{% if featured_vehicles %}
-<h2>Available now</h2>
+{% if featured_vehicles|length > 1 %}
+<div class="section-head">
+  <h2>More in the yard</h2>
+  {% if current_user.is_authenticated and current_user.role == 'customer' %}
+  <a href="{{ url_for('rent.vehicles') }}">See every car &rarr;</a>
+  {% endif %}
+</div>
 <div class="grid">
-  {% for v in featured_vehicles %}
+  {% for v in featured_vehicles[1:] %}
   <div class="card">
-    <div class="img">🚗</div>
+    <div class="img" aria-hidden="true">🚗</div>
     <h3>{{ v.Make }} {{ v.Model }}</h3>
     <p class="muted">{{ v.Year }}</p>
     <p class="price">KES {{ '{:,.0f}'.format(v.Daily_Rate) }}/day</p>
@@ -28,4 +76,22 @@
   {% endfor %}
 </div>
 {% endif %}
+
+<div class="section-head">
+  <h2>How it works</h2>
+</div>
+<ol class="step-list">
+  <li>
+    <strong>Pick a car</strong>
+    <span>Filter the fleet by what you need. Every car lists its daily rate up front.</span>
+  </li>
+  <li>
+    <strong>Choose your dates</strong>
+    <span>Self-drive or add a chauffeur. The price updates as you change the dates.</span>
+  </li>
+  <li>
+    <strong>Collect the keys</strong>
+    <span>We check the licence and insurance at the desk, then you drive.</span>
+  </li>
+</ol>
 {% endblock %}

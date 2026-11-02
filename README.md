@@ -150,6 +150,7 @@ car-rental/
 ├── seed_users.py              # creates login accounts with hashed passwords              (B2)
 ├── tests/                     # rule and route tests on throwaway databases               (B1, B2, F4)
 ├── ERD.md                     # entity relationship diagram (Mermaid)
+├── DESIGN.md                  # palette, type and copy rules for the frontend
 ├── API_CONTRACT.md            # every page: route, roles, variables, form fields          (B1)
 ├── requirements.txt
 ├── .env.example
@@ -906,10 +907,15 @@ Every form must include the CSRF token or it will be rejected:
 ```html
 <form method="post">
   {{ form.hidden_tag() }}
-  {{ form.start_date.label }} {{ form.start_date(class='input') }}
+  {{ form.start_date.label }} {{ form.start_date() }}
   <button class="btn" type="submit">Rent</button>
 </form>
 ```
+
+### Visual direction
+
+The palette, type, shape and copy rules live in [`DESIGN.md`](DESIGN.md). Read it before adding a page,
+and use the tokens (`var(--brand)`, `var(--ink)`) instead of new hex colours.
 
 ### CSS rules
 
