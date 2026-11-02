@@ -18,14 +18,20 @@
           <tbody>
             {% for v in vehicles %}
             <tr>
-              <td>{{ v.Plate_Number }}</td>
+              <td>
+                {% if v.Image_Path %}
+                <img class="table-thumb" src="{{ url_for('static', filename=v.Image_Path) }}"
+                     alt="" loading="lazy" width="48" height="32">
+                {% endif %}
+                {{ v.Plate_Number }}
+              </td>
               <td>{{ v.VIN }}</td>
               <td>{{ v.Make }}</td>
               <td>{{ v.Model }}</td>
               <td>{{ v.Year }}</td>
               <td>{{ '{:,.2f}'.format(v.Daily_Rate) }}</td>
               <td><span class="status-badge status-{{ v.Status }}">{{ v.Status }}</span></td>
-              <td><a class="btn" href="/fleet/vehicles/{{ v.Vehicle_ID }}/edit">Edit</a></td>
+              <td><a class="btn small" href="/fleet/vehicles/{{ v.Vehicle_ID }}/edit">Edit</a></td>
             </tr>
             {% else %}
             <tr class="empty-row"><td colspan="8">No cars in the fleet yet.</td></tr>

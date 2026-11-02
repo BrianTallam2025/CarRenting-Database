@@ -1,4 +1,5 @@
 {% extends "shared/base.html" %}
+{% from "shared/_car_photo.html" import car_photo %}
 {% block title %}Car Rental &mdash; drive what fits the trip{% endblock %}
 {% block content %}
 {% set hero_car = featured_vehicles[0] if featured_vehicles else None %}
@@ -37,7 +38,7 @@
   {% if hero_car %}
   <a class="hero-car"
      href="{% if current_user.is_authenticated and current_user.role == 'customer' %}{{ url_for('rent.vehicle_detail', vehicle_id=hero_car.Vehicle_ID) }}{% else %}{{ url_for('accounts.login') }}{% endif %}">
-    <span class="hero-car-art" aria-hidden="true">🚗</span>
+    {{ car_photo(hero_car, eager=true) }}
     <span class="hero-car-meta">
       <strong>{{ hero_car.Make }} {{ hero_car.Model }}</strong>
       <span>{{ hero_car.Year }} &middot; KES {{ '{:,.0f}'.format(hero_car.Daily_Rate) }} per day</span>
@@ -62,11 +63,11 @@
 </div>
 <div class="grid">
   {% for v in featured_vehicles[1:] %}
-  <div class="card">
-    <div class="img" aria-hidden="true">🚗</div>
+  <div class="card car-card">
+    {{ car_photo(v) }}
     <h3>{{ v.Make }} {{ v.Model }}</h3>
     <p class="muted">{{ v.Year }}</p>
-    <p class="price">KES {{ '{:,.0f}'.format(v.Daily_Rate) }}/day</p>
+    <p class="price">KES {{ '{:,.0f}'.format(v.Daily_Rate) }}<span class="per-day">/day</span></p>
     {% if current_user.is_authenticated and current_user.role == 'customer' %}
     <a class="btn" href="{{ url_for('rent.vehicle_detail', vehicle_id=v.Vehicle_ID) }}">View</a>
     {% else %}

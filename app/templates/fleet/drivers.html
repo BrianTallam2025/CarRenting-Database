@@ -22,7 +22,7 @@
               <td>{{ d.License_Number }}</td>
               <td><span class="status-badge status-{{ d.Status }}">{{ d.Status }}</span>
                 {% if d.Active_Rentals %} ({{ d.Active_Rentals }} active){% endif %}</td>
-              <td><a class="btn" href="/fleet/drivers/{{ d.Driver_ID }}/edit">Edit</a></td>
+              <td><a class="btn small" href="/fleet/drivers/{{ d.Driver_ID }}/edit">Edit</a></td>
             </tr>
             {% else %}
             <tr class="empty-row"><td colspan="4">No drivers yet.</td></tr>

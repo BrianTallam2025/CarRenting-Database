@@ -13,7 +13,8 @@ CREATE TABLE VEHICLE (
     Year          INT NOT NULL,
     Daily_Rate    DECIMAL(10,2) NOT NULL,
     Status        VARCHAR(20) NOT NULL DEFAULT 'available'
-                  CHECK (Status IN ('available', 'rented', 'maintenance'))
+                  CHECK (Status IN ('available', 'rented', 'maintenance')),
+    Image_Path    VARCHAR(255) NULL
 );
 
 CREATE TABLE INSURANCE_POLICY (

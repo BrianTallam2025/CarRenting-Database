@@ -1,4 +1,5 @@
 {% extends "shared/base.html" %}
+{% from "shared/_car_photo.html" import car_photo %}
 {% block title %}Dashboard | Car Rental{% endblock %}
 {% block nav %}{% include "customer/_nav.html" %}{% endblock %}
 {% block content %}
@@ -13,12 +14,15 @@
 </div>
 
 {% if active_rental %}
-<div class="card">
-  <h2>Current rental</h2>
-  <p><b>{{ active_rental.Make }} {{ active_rental.Model }}</b>
-     · {{ active_rental.Plate_Number }}</p>
-  <p>Due back on <b>{{ active_rental.Due_Date }}</b>.</p>
-  <a class="btn" href="{{ url_for('returns.my_rentals') }}">View my rentals</a>
+<div class="card current-rental">
+  {{ car_photo(active_rental) }}
+  <div>
+    <h2>Current rental</h2>
+    <p><b>{{ active_rental.Make }} {{ active_rental.Model }}</b>
+       &middot; {{ active_rental.Plate_Number }}</p>
+    <p>Due back on <b>{{ active_rental.Due_Date }}</b>.</p>
+    <a class="btn" href="{{ url_for('returns.my_rentals') }}">View my rentals</a>
+  </div>
 </div>
 {% else %}
 <div class="card">
@@ -27,7 +31,10 @@
 </div>
 {% endif %}
 
-<h2>Recent rentals</h2>
+<div class="section-head">
+  <h2>Recent rentals</h2>
+  {% if rental_count %}<a href="{{ url_for('returns.my_rentals') }}">All rentals &rarr;</a>{% endif %}
+</div>
 {% if recent_rentals %}
 <table class="list">
   <tr><th>Ref</th><th>Car</th><th>From</th><th>Due</th><th></th></tr>
@@ -46,14 +53,17 @@
 {% endif %}
 
 {% if available_cars %}
-<h2>Featured cars</h2>
+<div class="section-head">
+  <h2>Featured cars</h2>
+  <a href="{{ url_for('rent.vehicles') }}">Browse all &rarr;</a>
+</div>
 <div class="grid">
   {% for v in available_cars %}
-  <div class="card">
-    <div class="img">🚗</div>
+  <div class="card car-card">
+    {{ car_photo(v) }}
     <h3>{{ v.Make }} {{ v.Model }}</h3>
     <p class="muted">{{ v.Year }}</p>
-    <p class="price">KES {{ '{:,.0f}'.format(v.Daily_Rate) }}/day</p>
+    <p class="price">KES {{ '{:,.0f}'.format(v.Daily_Rate) }}<span class="per-day">/day</span></p>
     <a class="btn" href="{{ url_for('rent.vehicle_detail', vehicle_id=v.Vehicle_ID) }}">View</a>
   </div>
   {% endfor %}

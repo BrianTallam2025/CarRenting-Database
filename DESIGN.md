@@ -36,10 +36,18 @@ One typeface is enough; hierarchy comes from size, weight and space, not from fo
 
 ## Layout
 
-- Header: ink band, brand dot in sun, role-aware nav pills.
-- Landing: headline and one real car card in the hero, then the available fleet, then
+- Header: ink band, brand wordmark, role-aware nav pills.
+- Landing: headline and one real car photo in the hero, then the available fleet, then
   three concrete steps.
 - Interior pages: one column of content at 64-72rem, tables scroll horizontally on phones.
+
+## Photography
+
+Cars use real photographs, not emoji or illustrations. `VEHICLE.Image_Path` stores the
+path under `static/`, and `shared/_car_photo.html` renders it with a flat fallback panel
+when a car has no photo. Photos are cropped 16:10 in cards and 4:3 on the vehicle page.
+Attribution lives in `app/static/img/cars/CREDITS.md` and stays with the files.
+
 
 ## Copy
 

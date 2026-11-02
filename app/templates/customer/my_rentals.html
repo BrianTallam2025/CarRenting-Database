@@ -12,7 +12,13 @@
   {% for r in rentals %}
   <tr>
     <td>#R-{{ r.Rental_ID }}</td>
-    <td>{{ r.Make }} {{ r.Model }}</td>
+    <td>
+      {% if r.Image_Path %}
+      <img class="table-thumb" src="{{ url_for('static', filename=r.Image_Path) }}"
+           alt="" loading="lazy" width="48" height="32">
+      {% endif %}
+      {{ r.Make }} {{ r.Model }}
+    </td>
     <td>{{ r.Rental_Date }}</td>
     <td>{{ r.Due_Date }}</td>
     <td>KES {{ '{:,.2f}'.format(r.Total_Cost) }}</td>

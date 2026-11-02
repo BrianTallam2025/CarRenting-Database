@@ -1,0 +1,11 @@
+{% macro car_photo(v, eager=false) -%}
+{% if v.Image_Path %}
+<img class="car-photo"
+     src="{{ url_for('static', filename=v.Image_Path) }}"
+     alt="{{ v.Make }} {{ v.Model }}"
+     width="900" height="560"
+     {% if eager %}fetchpriority="high"{% else %}loading="lazy"{% endif %}>
+{% else %}
+<span class="car-photo car-photo-empty" aria-hidden="true"></span>
+{% endif %}
+{%- endmacro %}

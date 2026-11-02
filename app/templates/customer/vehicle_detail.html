@@ -1,26 +1,33 @@
 {% extends "shared/base.html" %}
+{% from "shared/_car_photo.html" import car_photo %}
 {% block title %}{{ vehicle.Make }} {{ vehicle.Model }} | Car Rental{% endblock %}
 {% block nav %}{% include "customer/_nav.html" %}{% endblock %}
 {% block content %}
+<p class="crumb"><a href="{{ url_for('rent.vehicles') }}">&larr; All cars</a></p>
 <h1>{{ vehicle.Make }} {{ vehicle.Model }}</h1>
-<div class="detail">
-  <div class="img">🚗</div>
-  <table>
-    <tr><th>Year</th><td>{{ vehicle.Year }}</td></tr>
-    <tr><th>Plate</th><td>{{ vehicle.Plate_Number }}</td></tr>
-    <tr><th>VIN</th><td>{{ vehicle.VIN }}</td></tr>
-    <tr><th>Daily rate</th><td>KES {{ '{:,.0f}'.format(vehicle.Daily_Rate) }}</td></tr>
-    <tr><th>Status</th>
-      <td><span class="tag {{ 'ok' if vehicle.Status == 'available' else 'no' }}">{{ vehicle.Status }}</span></td>
-    </tr>
-  </table>
+
+<div class="vehicle-showcase">
+  {{ car_photo(vehicle, eager=true) }}
+  <div class="vehicle-info">
+    <p class="vehicle-price">
+      KES {{ '{:,.0f}'.format(vehicle.Daily_Rate) }}<span>per day</span>
+    </p>
+    <table class="detail">
+      <tr><th>Year</th><td>{{ vehicle.Year }}</td></tr>
+      <tr><th>Plate</th><td>{{ vehicle.Plate_Number }}</td></tr>
+      <tr><th>VIN</th><td>{{ vehicle.VIN }}</td></tr>
+      <tr><th>Status</th>
+        <td><span class="tag {{ 'ok' if vehicle.Status == 'available' else 'no' }}">{{ vehicle.Status }}</span></td>
+      </tr>
+    </table>
+    <p class="actions">
+      {% if vehicle.Status == 'available' %}
+      <a class="btn" href="{{ url_for('rent.rent', vehicle_id=vehicle.Vehicle_ID) }}">Rent this car</a>
+      {% else %}
+      <span class="btn off">Not available</span>
+      {% endif %}
+      <a class="btn alt" href="{{ url_for('rent.vehicles') }}">Back to browse</a>
+    </p>
+  </div>
 </div>
-<p class="actions">
-  {% if vehicle.Status == 'available' %}
-  <a class="btn" href="{{ url_for('rent.rent', vehicle_id=vehicle.Vehicle_ID) }}">Rent this car</a>
-  {% else %}
-  <span class="btn off">Not available</span>
-  {% endif %}
-  <a class="btn alt" href="{{ url_for('rent.vehicles') }}">Back to browse</a>
-</p>
 {% endblock %}

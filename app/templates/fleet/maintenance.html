@@ -23,17 +23,17 @@
               <td>{{ m.Start_Date }}</td>
               <td>{{ m.End_Date or '—' }}</td>
               <td>{{ m.Description }}</td>
-              <td><span class="status-badge status-{{ m.Status }}">{{ m.Status }}</span></td>
+              <td><span class="status-badge status-{{ m.Status }}">{{ m.Status|replace('_', ' ') }}</span></td>
               <td>
                 {% if m.Status == 'scheduled' %}
                 <form class="inline-form" method="post" action="/fleet/maintenance/{{ m.Maintenance_ID }}/start">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                  <button class="btn" type="submit">Start</button>
+                  <button class="btn small" type="submit">Start</button>
                 </form>
                 {% elif m.Status == 'in_progress' %}
                 <form class="inline-form" method="post" action="/fleet/maintenance/{{ m.Maintenance_ID }}/complete">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                  <button class="btn" type="submit">Complete</button>
+                  <button class="btn small" type="submit">Complete</button>
                 </form>
                 {% endif %}
               </td>

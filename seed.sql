@@ -5,12 +5,12 @@
 USE car_rental;
 
 -- Vehicles. Statuses match the rentals and maintenance rows below.
-INSERT INTO VEHICLE (Vehicle_ID, VIN, Plate_Number, Make, Model, Year, Daily_Rate, Status) VALUES
-(1, 'JTDBR32E730123456', 'KDA 101A', 'Toyota',     'Corolla', 2023,  3500.00, 'available'),
-(2, '1HGCM82633A004352', 'KDB 202B', 'Honda',      'Civic',   2022,  4500.00, 'rented'),
-(3, 'WVWZZZ1JZXW000001', 'KDC 303C', 'Volkswagen', 'Golf',    2019,  4000.00, 'available'),
-(4, 'MNTAB0AB1JN123456', 'KDD 404D', 'Nissan',     'X-Trail', 2021,  9000.00, 'available'),
-(5, 'JTEBU5JR8K5600001', 'KDE 505E', 'Toyota',     'Prado',   2020, 12000.00, 'maintenance');
+INSERT INTO VEHICLE (Vehicle_ID, VIN, Plate_Number, Make, Model, Year, Daily_Rate, Status, Image_Path) VALUES
+(1, 'JTDBR32E730123456', 'KDA 101A', 'Toyota',     'Corolla', 2023,  3500.00, 'available',   'img/cars/corolla.jpg'),
+(2, '1HGCM82633A004352', 'KDB 202B', 'Honda',      'Civic',   2022,  4500.00, 'rented',      'img/cars/civic.jpg'),
+(3, 'WVWZZZ1JZXW000001', 'KDC 303C', 'Volkswagen', 'Golf',    2019,  4000.00, 'available',   'img/cars/golf.jpg'),
+(4, 'MNTAB0AB1JN123456', 'KDD 404D', 'Nissan',     'X-Trail', 2021,  9000.00, 'available',   'img/cars/xtrail.jpg'),
+(5, 'JTEBU5JR8K5600001', 'KDE 505E', 'Toyota',     'Prado',   2020, 12000.00, 'maintenance', 'img/cars/prado.jpg');
 
 -- One policy per car.
 INSERT INTO INSURANCE_POLICY (Vehicle_ID, Provider, Expiry_Date) VALUES

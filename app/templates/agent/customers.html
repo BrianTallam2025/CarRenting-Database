@@ -25,7 +25,7 @@
               <td>{{ c.First_Name }} {{ c.Last_Name }}</td>
               <td>{{ c.Email }}</td>
               <td>{{ c.Tier }}</td>
-              <td><a class="btn" href="/agent/customers?selected={{ c.Customer_ID }}">View rentals</a></td>
+              <td><a class="btn small" href="/agent/customers?selected={{ c.Customer_ID }}">View rentals</a></td>
             </tr>
             {% else %}
             <tr class="empty-row"><td colspan="5">No matching customers.</td></tr>
@@ -50,7 +50,7 @@
               <td>{{ r.Make }} {{ r.Model }}</td>
               <td>{{ r.Rental_Date }}</td>
               <td>{{ r.Due_Date }}</td>
-              <td><a class="btn" href="/agent/rentals/{{ r.Rental_ID }}">Open</a></td>
+              <td><a class="btn small" href="/agent/rentals/{{ r.Rental_ID }}">Open</a></td>
             </tr>
             {% else %}
             <tr class="empty-row"><td colspan="5">No rentals for this customer.</td></tr>

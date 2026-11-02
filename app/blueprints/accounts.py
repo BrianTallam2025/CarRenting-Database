@@ -153,7 +153,7 @@ def dashboard():
         abort(403)
 
     active_rental = query(
-        """SELECT r.Rental_ID, r.Due_Date, v.Make, v.Model, v.Plate_Number
+        """SELECT r.Rental_ID, r.Due_Date, v.Make, v.Model, v.Plate_Number, v.Image_Path
            FROM RENTAL r
            JOIN VEHICLE v ON v.Vehicle_ID = r.Vehicle_ID
            WHERE r.Customer_ID = %s AND r.Return_Date IS NULL
@@ -169,7 +169,7 @@ def dashboard():
            LIMIT 5""",
         (customer_id,))
     available_cars = query(
-        """SELECT v.Vehicle_ID, v.Make, v.Model, v.Year, v.Daily_Rate
+        """SELECT v.Vehicle_ID, v.Make, v.Model, v.Year, v.Daily_Rate, v.Image_Path
            FROM VEHICLE v
            WHERE v.Status = 'available'
              AND EXISTS (SELECT 1 FROM INSURANCE_POLICY i

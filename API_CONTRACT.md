@@ -13,6 +13,8 @@ Template file for each page follows the README tree (`shared/`, `customer/`, `ag
 
 - **Object aliases are lowercase:** `vehicle`, `customer`, `driver`, `rental`, `policy`, `job`, `account`, `history`.
 - **Fields use the exact database column names:** `vehicle.Make`, `vehicle.Plate_Number`, `vehicle.Daily_Rate`, `customer.Tier`, `rental.Due_Date`.
+- **Vehicle rows also carry `Image_Path`** wherever the page shows a car card, photo or thumbnail.
+  It is a path under `static/` (for example `img/cars/corolla.jpg`) or `NULL` when no photo exists.
 - **Lists are plural and lowercase:** `vehicles`, `rentals`, `drivers`, `customers`, `policies`, `jobs`, `trips`.
 - **Rows in a joined list are flat.** The contract may describe a list with its table name
   (`vehicle.Make`, `customer.First_Name`); in the template each row is a flat dict, so use

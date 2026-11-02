@@ -21,7 +21,7 @@ def vehicles():
     max_price = request.args.get('max_price', type=float)
 
     sql = """SELECT v.Vehicle_ID, v.VIN, v.Plate_Number, v.Make, v.Model, v.Year,
-                    v.Daily_Rate, v.Status
+                    v.Daily_Rate, v.Status, v.Image_Path
              FROM VEHICLE v
              WHERE v.Status = 'available'
                AND EXISTS (SELECT 1 FROM INSURANCE_POLICY i

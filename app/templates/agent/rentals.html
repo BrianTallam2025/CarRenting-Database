@@ -32,7 +32,7 @@
               <td>{{ r.Due_Date }}</td>
               <td><span class="pill pill-{{ r.status }}">{{ r.status }}</span></td>
               <td>{{ r.Return_Date or 'Open' }}</td>
-              <td><a class="btn" href="/agent/rentals/{{ r.Rental_ID }}">Details</a></td>
+              <td><a class="btn small" href="/agent/rentals/{{ r.Rental_ID }}">Details</a></td>
             </tr>
             {% else %}
             <tr class="empty-row"><td colspan="9">No matching rentals.</td></tr>

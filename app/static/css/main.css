@@ -36,6 +36,11 @@ body {
 a { color: var(--brand); text-underline-offset: 3px; }
 a:hover { color: var(--brand-dark); }
 
+::selection {
+  background: var(--sun);
+  color: var(--ink);
+}
+
 :focus-visible {
   outline: 3px solid var(--sun);
   outline-offset: 3px;
@@ -70,7 +75,7 @@ header {
   padding: 0.7rem max(1rem, calc((100% - 72rem) / 2));
   background: var(--ink);
   color: var(--surface);
-  border-bottom: 3px solid var(--brand);
+  border-bottom: 1px solid #ffffff1a;
 }
 
 header .brand {
@@ -80,14 +85,6 @@ header .brand {
   font-size: 1.05rem;
   font-weight: 800;
   letter-spacing: -0.02em;
-}
-
-header .brand::before {
-  content: "";
-  width: 0.7rem;
-  height: 0.7rem;
-  border-radius: 50%;
-  background: var(--sun);
 }
 
 header .brand a {
@@ -125,10 +122,10 @@ main {
 }
 
 h1, h2, h3 { line-height: 1.15; letter-spacing: -0.035em; }
-h1 { margin: 0 0 1rem; font-size: clamp(2rem, 5vw, 3.3rem); font-weight: 850; }
-h2 { margin: 2rem 0 1rem; font-size: clamp(1.35rem, 3vw, 2rem); font-weight: 800; }
+h1 { margin: 0 0 1rem; font-size: clamp(2rem, 5vw, 3.3rem); font-weight: 850; text-wrap: balance; }
+h2 { margin: 2rem 0 1rem; font-size: clamp(1.35rem, 3vw, 2rem); font-weight: 800; text-wrap: balance; }
 h3 { margin: 0 0 0.4rem; font-size: 1.1rem; font-weight: 750; }
-p { margin-top: 0; }
+p { margin-top: 0; text-wrap: pretty; }
 
 .muted { color: var(--muted); font-size: 0.92rem; }
 
@@ -166,6 +163,7 @@ p { margin-top: 0; }
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
 }
 
 .card {
@@ -199,6 +197,8 @@ p { margin-top: 0; }
   max-width: 14ch;
 }
 
+.hero-copy { min-width: 0; }
+
 .hero-lead {
   max-width: 42ch;
   color: #ded6c7;
@@ -217,56 +217,74 @@ p { margin-top: 0; }
 .hero-car {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  padding: 1.1rem;
+  padding: 0;
+  overflow: hidden;
   border: 1px solid var(--ink);
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--ink);
   text-decoration: none;
   box-shadow: 4px 4px 0 #00000033;
-  transition: transform 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.hero-car:hover { transform: translate(-2px, -2px); color: var(--ink); }
-
-.hero-car-art {
-  display: grid;
-  place-items: center;
-  width: 5.5rem;
-  height: 5.5rem;
-  font-size: 3rem;
-  border-radius: 16px;
-  background: var(--sun);
-  transform: rotate(-4deg);
+.hero-car:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 #00000040;
+  color: var(--ink);
 }
+.hero-car .car-photo { margin: 0; border-radius: 0; }
 
-.hero-car-meta { display: flex; flex-direction: column; gap: 0.15rem; }
+.hero-car-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 1rem 1.15rem 0;
+}
 .hero-car-meta strong { font-size: 1.15rem; font-weight: 800; }
 .hero-car-meta span { color: var(--muted); font-size: 0.92rem; }
 
 .hero-car-go {
-  margin-top: 0.35rem;
+  padding: 0.4rem 1.15rem 1.15rem;
   font-weight: 750;
   color: var(--brand);
 }
 
-/* ---------- fleet cards ---------- */
+/* ---------- car cards ---------- */
 
-.img {
-  display: grid;
-  place-items: center;
-  min-height: 6.5rem;
-  margin-bottom: 0.9rem;
+.car-photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
   border-radius: 10px;
-  background: linear-gradient(135deg, #f4b74055, #d9482b22);
-  font-size: 3rem;
+  background: #e9e0cf;
+  object-fit: cover;
+  filter: saturate(0.94) contrast(1.02);
 }
+
+.car-photo-empty {
+  background:
+    linear-gradient(135deg, #f4b74033, #d9482b1a),
+    repeating-linear-gradient(45deg, #ded4c366 0 8px, transparent 8px 16px);
+}
+
+.car-card { padding: 0; overflow: hidden; }
+.car-card .car-photo { border-radius: 0; }
+.car-card > :not(.car-photo) { margin-inline: 1.15rem; }
+.car-card > h3 { margin-top: 1rem; }
+.car-card > .price { margin-bottom: 0.85rem; }
+.car-card > .btn,
+.car-card > form { margin-bottom: 1.15rem; }
 
 .price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
   margin: 0.35rem 0 0.9rem;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   font-weight: 800;
+  font-variant-numeric: tabular-nums;
 }
+.price .per-day { font-size: 0.8rem; font-weight: 600; color: var(--muted); }
 
 /* ---------- buttons ---------- */
 
@@ -306,18 +324,66 @@ p { margin-top: 0; }
 
 .btn:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
 
-/* ---------- tags ---------- */
+.btn.small {
+  min-height: 34px;
+  padding: 0.3rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.btn.small:hover { box-shadow: 3px 3px 0 var(--ink); }
 
-.tag {
-  display: inline-block;
-  padding: 0.15rem 0.55rem;
+/* ---------- status chips ---------- */
+
+.tag,
+.pill,
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.16rem 0.6rem 0.16rem 0.5rem;
   border-radius: 999px;
   background: #ece4d5;
-  font-size: 0.8rem;
+  color: var(--ink);
+  font-size: 0.78rem;
   font-weight: 700;
+  letter-spacing: 0.005em;
+  text-transform: capitalize;
+  white-space: nowrap;
 }
-.tag.ok { background: #d7ecdf; color: #14532d; }
-.tag.no { background: #f8d9d2; color: #7a2617; }
+.tag::before,
+.pill::before,
+.status-badge::before {
+  content: "";
+  flex: none;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* green: finished cleanly */
+.tag.ok,
+.pill-returned,
+.status-available,
+.status-valid,
+.status-completed { background: #d7ecdf; color: #14532d; }
+
+/* red: needs attention */
+.tag.no,
+.pill-overdue,
+.status-expired { background: #f8d9d2; color: #7a2617; }
+
+/* blue: out on the road */
+.pill-active,
+.status-rented,
+.status-assigned { background: #dbe8f5; color: #1c4a78; }
+
+/* amber: booked in, or running out of time */
+.status-maintenance,
+.status-scheduled,
+.status-in_progress,
+.status-expiring { background: #fbeccb; color: #6b4a00; }
 
 /* ---------- forms ---------- */
 
@@ -345,6 +411,41 @@ input:focus, select:focus, textarea:focus {
 
 .form-error { display: block; margin-top: 0.3rem; color: #a72d14; font-size: 0.85rem; font-weight: 600; }
 
+/* shared field layout: keeps forms in step across customer, agent and fleet pages */
+.field,
+.form-field { margin-bottom: 1rem; }
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0 1rem;
+}
+
+.form-row { display: flex; gap: 1rem; }
+.form-row > * { flex: 1; min-width: 0; }
+
+fieldset.field {
+  padding: 0.75rem 1rem 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+fieldset.field legend { padding: 0 0.35rem; font-weight: 650; }
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 0.75rem;
+}
+
+.checkbox { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
+.checkbox input { width: auto; }
+.checkbox label { margin: 0; }
+
+@media (max-width: 600px) {
+  .form-row { flex-direction: column; gap: 0; }
+}
+
 .auth {
   width: min(100%, 26rem);
   margin: 2rem auto;
@@ -368,14 +469,29 @@ input:focus, select:focus, textarea:focus {
 
 .table-wrap { overflow-x: auto; }
 
+.table-thumb {
+  width: 3rem;
+  height: 2rem;
+  margin-right: 0.5rem;
+  border-radius: 5px;
+  object-fit: cover;
+  vertical-align: middle;
+}
 table { width: 100%; border-collapse: collapse; }
-th, td { padding: 0.6rem 0.7rem; text-align: left; border-bottom: 1px solid var(--line); }
-th { background: var(--ink); color: var(--surface); font-size: 0.82rem; letter-spacing: 0.02em; }
+th, td {
+  padding: 0.6rem 0.7rem;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
+}
+th { background: var(--ink); color: var(--surface); font-size: 0.8rem; letter-spacing: 0.02em; }
+tbody tr { transition: background 0.12s ease; }
 tbody tr:hover { background: #f6efe2; }
 
 .detail { margin-bottom: 1.25rem; }
-.detail th { background: transparent; color: var(--muted); font-weight: 650; }
+.detail th { width: 9rem; background: transparent; color: var(--muted); font-weight: 650; }
 .detail th, .detail td { border-bottom: 1px solid var(--line); }
+.detail tr:last-child th, .detail tr:last-child td { border-bottom: 0; }
 
 .bar {
   height: 0.55rem;

@@ -144,6 +144,7 @@ car-rental/
 │   └── static/
 │       ├── css/main.css       # shared styles, navigation and common components           (F1)
 │       ├── css/components/    # page-area styles owned by F2, F3 and F4
+│       ├── img/cars/          # demo car photos + CREDITS.md
 │       └── js/                # small scripts (price preview, confirm dialogs)
 ├── schema.sql                 # all tables, trigger                                       (B2)
 ├── seed.sql                   # sample cars, customers, drivers                           (B2)
@@ -274,11 +275,11 @@ print('Accounts created.')
 
 ## 7. Database
 
-Nine tables. The full script lives in `schema.sql` (B2 owns it, and it is frozen on day 0).
+Nine tables. The full script lives in `schema.sql` (B2 owns it; ask B2 before changing it).
 
 | Table | Stores |
 |---|---|
-| `VEHICLE` | Each car: VIN, plate, make, model, year, daily rate, status |
+| `VEHICLE` | Each car: VIN, plate, make, model, year, daily rate, status, photo path |
 | `INSURANCE_POLICY` | One policy per car, with expiry date |
 | `CUSTOMER` | Customer details, license number and expiry, loyalty tier |
 | `CUSTOMER_PHONE` | Several phone numbers per customer (keeps the tables in 1NF) |
@@ -312,7 +313,8 @@ CREATE TABLE VEHICLE (
     Year          INT NOT NULL,
     Daily_Rate    DECIMAL(10,2) NOT NULL,
     Status        VARCHAR(20) NOT NULL DEFAULT 'available'
-                  CHECK (Status IN ('available', 'rented', 'maintenance'))
+                  CHECK (Status IN ('available', 'rented', 'maintenance')),
+    Image_Path    VARCHAR(255) NULL
 );
 
 CREATE TABLE INSURANCE_POLICY (

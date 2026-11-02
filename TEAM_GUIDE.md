@@ -352,6 +352,7 @@ car-rental/
 │   └── static/
 │       ├── css/main.css       # shared styles                                            (F1)
 │       ├── css/components/    # each person's own component CSS files
+│       ├── img/cars/          # demo car photos + CREDITS.md
 │       └── js/                # small scripts (price preview, confirm dialogs)
 ├── schema.sql                 # all tables, trigger                                      (B2)
 ├── seed.sql                   # sample cars, customers, drivers                          (B2)

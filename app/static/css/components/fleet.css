@@ -1,32 +1,11 @@
 /* Fleet manager pages (F4): status badges and form layout. */
 
-.status-badge {
-  display: inline-block;
-  padding: 0.1rem 0.55rem;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: capitalize;
-}
-.status-available,
-.status-valid,
-.status-completed  { background: #d7ecdf; color: #14532d; }
-.status-rented,
-.status-assigned   { background: #dbe8f5; color: #1c4a78; }
-.status-maintenance,
-.status-expiring,
-.status-scheduled,
-.status-in_progress { background: #fbeccb; color: #6b4a00; }
-.status-expired    { background: #f8d9d2; color: #7a2617; }
+/* status badges use the shared chip styles in main.css */
 
 .inline-form { display: inline; }
 
 /* form layout */
 .form-layout { max-width: 40rem; }
-.form-field { margin-bottom: 1rem; }
-.form-row { display: flex; gap: 1rem; }
-.form-row .form-field { flex: 1; }
-.form-actions { display: flex; align-items: center; gap: 0.85rem; margin-top: 0.75rem; }
 
 /* page bits used only on the fleet pages */
 .page-top {
@@ -54,7 +33,3 @@
 }
 .stat-number { margin-right: 0.3rem; font-size: 1.7rem; font-weight: 800; letter-spacing: -0.03em; }
 .empty-row td { padding: 1.5rem; text-align: center; color: var(--muted); }
-
-@media (max-width: 600px) {
-  .form-row { flex-direction: column; gap: 0; }
-}

@@ -1,8 +1,12 @@
 {% extends "shared/base.html" %}
+{% from "shared/_car_photo.html" import car_photo %}
 {% block title %}Browse cars | Car Rental{% endblock %}
 {% block nav %}{% include "customer/_nav.html" %}{% endblock %}
 {% block content %}
-<h1>Browse cars</h1>
+<div class="page-intro">
+  <h1>Browse cars</h1>
+  <p class="muted">Everything here is available, insured and ready to collect.</p>
+</div>
 <form class="filter" method="get" action="{{ url_for('rent.vehicles') }}">
   <label>Make
     <input name="make" value="{{ request.args.get('make', '') }}" placeholder="e.g. Toyota">
@@ -18,17 +22,19 @@
 {% if vehicles %}
 <div class="grid">
   {% for v in vehicles %}
-  <div class="card">
-    <div class="img">🚗</div>
+  <div class="card car-card">
+    {{ car_photo(v) }}
     <h3>{{ v.Make }} {{ v.Model }}</h3>
-    <p class="muted">{{ v.Year }} · {{ v.Plate_Number }}</p>
-    <p class="price">KES {{ '{:,.0f}'.format(v.Daily_Rate) }}/day</p>
-    <span class="tag ok">{{ v.Status }}</span>
-    <p><a class="btn" href="{{ url_for('rent.vehicle_detail', vehicle_id=v.Vehicle_ID) }}">View</a></p>
+    <p class="muted">{{ v.Year }} &middot; {{ v.Plate_Number }}</p>
+    <p class="price">KES {{ '{:,.0f}'.format(v.Daily_Rate) }}<span class="per-day">/day</span></p>
+    <a class="btn" href="{{ url_for('rent.vehicle_detail', vehicle_id=v.Vehicle_ID) }}">View this car</a>
   </div>
   {% endfor %}
 </div>
 {% else %}
-<div class="card"><p>No cars match those filters.</p></div>
+<div class="card">
+  <p>No cars match those filters.</p>
+  <a class="btn alt" href="{{ url_for('rent.vehicles') }}">Clear filters</a>
+</div>
 {% endif %}
 {% endblock %}

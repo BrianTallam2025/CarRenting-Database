@@ -8,7 +8,7 @@ bp = Blueprint('main', __name__)
 @bp.route('/')
 def landing():
     featured_vehicles = query(
-        """SELECT v.Vehicle_ID, v.Make, v.Model, v.Year, v.Daily_Rate
+        """SELECT v.Vehicle_ID, v.Make, v.Model, v.Year, v.Daily_Rate, v.Image_Path
            FROM VEHICLE v
            WHERE v.Status = 'available'
              AND EXISTS (SELECT 1 FROM INSURANCE_POLICY i

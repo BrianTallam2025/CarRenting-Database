@@ -1,35 +1,47 @@
 {% extends "shared/base.html" %}
+{% from "shared/_car_photo.html" import car_photo %}
 {% block title %}Rent {{ vehicle.Make }} {{ vehicle.Model }} | Car Rental{% endblock %}
 {% block nav %}{% include "customer/_nav.html" %}{% endblock %}
 {% block content %}
 <h1>Rent a car</h1>
-<div class="card">
-  <h2>{{ vehicle.Make }} {{ vehicle.Model }}</h2>
-  <p class="muted">{{ vehicle.Year }} · {{ vehicle.Plate_Number }} ·
-     KES {{ '{:,.0f}'.format(vehicle.Daily_Rate) }}/day</p>
-  <p>Tier: <span class="tag">{{ customer.Tier }}</span>
-     {% if discount_percent %} · {{ discount_percent }}% discount{% endif %}</p>
+<div class="rent-layout">
+  {{ car_photo(vehicle, eager=true) }}
+  <div class="card">
+    <h2>{{ vehicle.Make }} {{ vehicle.Model }}</h2>
+    <p class="muted">{{ vehicle.Year }} &middot; {{ vehicle.Plate_Number }} &middot;
+       KES {{ '{:,.0f}'.format(vehicle.Daily_Rate) }} per day</p>
+    <p>Tier: <span class="tag">{{ customer.Tier }}</span>
+       {% if discount_percent %} &middot; {{ discount_percent }}% discount{% endif %}</p>
 
-  <form method="post" action="{{ url_for('rent.rent', vehicle_id=vehicle.Vehicle_ID) }}">
-    {{ form.hidden_tag() }}
-    <label>{{ form.start_date.label.text }}
-      {{ form.start_date(min=today, required=true) }}
-    </label>
-    <label>{{ form.end_date.label.text }}
-      {{ form.end_date(min=today, required=true) }}
-    </label>
-    <label class="check">
-      {{ form.is_chauffeur() }} {{ form.is_chauffeur.label.text }}
-    </label>
-    <p class="muted">Need a driver? Tick the box and the desk will assign one before pickup.</p>
-    <div class="total">
-      Days: <span id="days">0</span> ·
-      Estimated total: KES <span id="estimate">0.00</span>
-      {% if discount_percent %}<span class="muted">(includes {{ discount_percent }}% {{ customer.Tier }} discount)</span>{% endif %}
-    </div>
-    {{ form.submit(class_='btn') }}
-  </form>
-  <p><a class="btn alt" href="{{ url_for('rent.vehicle_detail', vehicle_id=vehicle.Vehicle_ID) }}">Back to details</a></p>
+    <form method="post" action="{{ url_for('rent.rent', vehicle_id=vehicle.Vehicle_ID) }}">
+      {{ form.hidden_tag() }}
+      <div class="form-grid">
+        <div class="field">
+          {{ form.start_date.label }}
+          {{ form.start_date(min=today, required=true) }}
+          {% for error in form.start_date.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+        </div>
+        <div class="field">
+          {{ form.end_date.label }}
+          {{ form.end_date(min=today, required=true) }}
+          {% for error in form.end_date.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+        </div>
+      </div>
+      <label class="check">
+        {{ form.is_chauffeur() }} {{ form.is_chauffeur.label.text }}
+      </label>
+      <p class="muted">Need a driver? Tick the box and the desk will assign one before pickup.</p>
+      <div class="total">
+        Days: <span id="days">0</span> &middot;
+        Estimated total: KES <span id="estimate">0.00</span>
+        {% if discount_percent %}<span class="muted">(includes {{ discount_percent }}% {{ customer.Tier }} discount)</span>{% endif %}
+      </div>
+      {{ form.submit(class_='btn') }}
+    </form>
+    <p class="actions">
+      <a class="btn alt" href="{{ url_for('rent.vehicle_detail', vehicle_id=vehicle.Vehicle_ID) }}">Back to details</a>
+    </p>
+  </div>
 </div>
 {% endblock %}
 {% block scripts %}

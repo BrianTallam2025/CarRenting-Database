@@ -43,6 +43,7 @@ erDiagram
         int Year
         decimal Daily_Rate
         varchar Status "available | rented | maintenance"
+        varchar Image_Path "path under static/, NULL when no photo"
     }
     INSURANCE_POLICY {
         int Policy_ID PK

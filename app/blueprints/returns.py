@@ -87,7 +87,7 @@ def _rental_bundle(rental_id):
 @role_required('customer')
 def my_rentals():
     rentals = query(
-        f"""SELECT r.*, v.Make, v.Model, v.Plate_Number,
+        f"""SELECT r.*, v.Make, v.Model, v.Plate_Number, v.Image_Path,
                   r.Total_Cost + r.Late_Fee AS amount_due,
                   {RENTAL_STATUS} AS status
            FROM RENTAL r
