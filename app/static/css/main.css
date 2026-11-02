@@ -232,7 +232,12 @@ p { margin-top: 0; text-wrap: pretty; }
   box-shadow: 6px 6px 0 #00000040;
   color: var(--ink);
 }
-.hero-car .car-photo { margin: 0; border-radius: 0; }
+.hero-car .car-photo {
+  height: clamp(9rem, 17vw, 11rem);
+  margin: 0;
+  border-radius: 0;
+  object-position: center 45%;
+}
 
 .hero-car-meta {
   display: flex;
@@ -267,13 +272,11 @@ p { margin-top: 0; text-wrap: pretty; }
     repeating-linear-gradient(45deg, #ded4c366 0 8px, transparent 8px 16px);
 }
 
-.car-card { padding: 0; overflow: hidden; }
-.car-card .car-photo { border-radius: 0; }
-.car-card > :not(.car-photo) { margin-inline: 1.15rem; }
-.car-card > h3 { margin-top: 1rem; }
-.car-card > .price { margin-bottom: 0.85rem; }
-.car-card > .btn,
-.car-card > form { margin-bottom: 1.15rem; }
+.car-card .car-photo {
+  height: 9.5rem;
+  margin-bottom: 0.9rem;
+  object-position: center 45%;
+}
 
 .price {
   display: flex;
