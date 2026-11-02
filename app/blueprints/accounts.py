@@ -111,9 +111,6 @@ def register():
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
-    if current_user.is_authenticated:
-        return redirect(home_for_role(current_user.role))
-
     form = LoginForm()
     if form.validate_on_submit():
         email = form.email.data.strip().lower()
@@ -123,8 +120,18 @@ def login():
             flash('Wrong email or password', 'error')
             return redirect(url_for('accounts.login'))
 
+        # Logging in again switches accounts instead of bouncing to the old home page.
+        if current_user.is_authenticated:
+            logout_user()
         login_user(User(account))
         return redirect(home_for_role(account['Role']))
+
+    if current_user.is_authenticated:
+        flash(
+            f'You are signed in as {current_user.email}. Log out to switch accounts.',
+            'warning',
+        )
+        return redirect(home_for_role(current_user.role))
 
     return render_template('shared/login.html', form=form)
 

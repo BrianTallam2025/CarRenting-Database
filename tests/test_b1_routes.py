@@ -121,6 +121,29 @@ class B1RouteTests(unittest.TestCase):
                 self.assertEqual(response.status_code, 302)
                 self.assertEqual(response.headers['Location'], home)
 
+    def test_login_switches_accounts_without_logging_out_first(self):
+        self.login('customer@example.com')
+        self.assertEqual(self.client.get('/customer').status_code, 200)
+
+        # Signing in as another role replaces the current session.
+        response = self.client.post(
+            '/login',
+            data={'email': 'agent@example.com', 'password': 'demo1234'},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers['Location'], '/agent')
+        self.assertEqual(self.client.get('/agent').status_code, 200)
+        self.assertEqual(self.client.get('/customer').status_code, 403)
+
+        # A wrong password does not drop the session that is already open.
+        response = self.client.post(
+            '/login',
+            data={'email': 'manager@example.com', 'password': 'wrong-password'},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers['Location'], '/login')
+        self.assertEqual(self.client.get('/agent').status_code, 200)
+
     def test_customer_pages(self):
         self.login('customer@example.com')
         for path, markers in [
