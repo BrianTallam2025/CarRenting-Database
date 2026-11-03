@@ -2,7 +2,11 @@
 {% block title %}Log in | Car Rental{% endblock %}
 {% block content %}
 <div class="auth">
-  <h1>Log in</h1>
+  <div class="auth-head">
+    <h1>Welcome back</h1>
+    <p class="muted">Log in to book a car or open your desk.</p>
+  </div>
+
   <form method="post" action="{{ url_for('accounts.login') }}">
     {{ form.hidden_tag() }}
     <label>{{ form.email.label.text }}
@@ -15,13 +19,20 @@
     </label>
     {{ form.submit(class_='btn') }}
   </form>
-  <p class="muted">New here? <a href="{{ url_for('accounts.register') }}">Create an account</a>.</p>
-  <details class="muted demo-accounts">
+
+  <p class="muted auth-switch">
+    New here? <a href="{{ url_for('accounts.register') }}">Create an account</a>.
+  </p>
+
+  <details class="demo-accounts">
     <summary>Demo accounts</summary>
-    <p>customer@example.com / demo1234<br>
-       agent@example.com / demo1234<br>
-       manager@example.com / demo1234<br>
-       driver@example.com / demo1234</p>
+    <ul class="demo-list">
+      <li><span>Customer</span><code>customer@example.com</code></li>
+      <li><span>Agent</span><code>agent@example.com</code></li>
+      <li><span>Manager</span><code>manager@example.com</code></li>
+      <li><span>Driver</span><code>driver@example.com</code></li>
+    </ul>
+    <p class="muted">Password for all four: <code>demo1234</code></p>
   </details>
 </div>
 {% endblock %}

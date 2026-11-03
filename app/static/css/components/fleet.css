@@ -8,15 +8,6 @@
 .form-layout { max-width: 40rem; }
 
 /* page bits used only on the fleet pages */
-.page-top {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
-}
-.page-top h1 { margin: 0; }
 .stat-list {
   display: flex;
   flex-wrap: wrap;

@@ -1,69 +1,78 @@
 {% extends "shared/base.html" %}
+{% from "shared/_car_photo.html" import car_photo %}
 {% block title %}Rental #{{ rental.Rental_ID }} | Agent{% endblock %}
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/components/agent.css') }}">
 {% endblock %}
 {% block content %}
-    <h1>Rental #{{ rental.Rental_ID }}</h1>
+<div class="page-top">
+  <h1>Rental #R-{{ rental.Rental_ID }}</h1>
+  <span class="pill pill-{{ status }}">{{ status }}</span>
+</div>
 
-    <section class="card">
-      <h2>Customer</h2>
-      <p>
-        {% if customer %}
-        {{ customer.First_Name }} {{ customer.Last_Name }}<br>
-        <span class="muted">{{ customer.Email }} · Tier: {{ customer.Tier }}</span>
-        {% else %}
-        <span class="muted">Customer record not found.</span>
-        {% endif %}
-      </p>
-    </section>
-
-    <section class="card">
-      <h2>Vehicle and driver</h2>
-      <p>
-        {% if vehicle %}
-        {{ vehicle.Make }} {{ vehicle.Model }} ({{ vehicle.Plate_Number }})<br>
-        <span class="muted">KES {{ vehicle.Daily_Rate }} per day</span>
-        {% else %}
-        <span class="muted">Vehicle to be assigned.</span>
-        {% endif %}
-      </p>
-      <p>
-        {% if rental.Is_Chauffeur %}
-          {% if driver %}
-          Driver: {{ driver.First_Name }} {{ driver.Last_Name }}
-          {% else %}
-          Chauffeur to be assigned
-          {% endif %}
-        {% else %}
-          Self-drive
-        {% endif %}
-      </p>
-    </section>
-
-    <section class="card">
-      <h2>Dates and charges</h2>
-      <div class="totals">
-        <div class="total-box"><span>Rental date</span><strong>{{ rental.Rental_Date }}</strong></div>
-        <div class="total-box"><span>Due date</span><strong>{{ rental.Due_Date }}</strong></div>
-        <div class="total-box"><span>Returned</span><strong>{{ rental.Return_Date or 'Not yet' }}</strong></div>
-        <div class="total-box"><span>Total cost</span><strong>KES {{ rental.Total_Cost }}</strong></div>
-        <div class="total-box"><span>Late fee</span><strong>KES {{ rental.Late_Fee }}</strong></div>
-        <div class="total-box"><span>Amount due</span><strong>KES {{ amount_due }}</strong></div>
-      </div>
-    </section>
-
-    {% if rental.Return_Date %}
-    <p class="muted">This rental is closed. No further action is needed.</p>
+<div class="rental-top">
+  <section class="card rental-car">
+    {% if vehicle %}
+    {{ car_photo(vehicle) }}
+    <h2>{{ vehicle.Make }} {{ vehicle.Model }}</h2>
+    <p class="muted">
+      {{ vehicle.Plate_Number }} &middot;
+      KES {{ '{:,.2f}'.format(vehicle.Daily_Rate) }} per day
+    </p>
     {% else %}
-    <div class="actions">
-      {% if current_user.role == 'rental_agent' %}
-      <a class="btn" href="/agent/rentals/{{ rental.Rental_ID }}/return">Process return</a>
-      <a class="btn" href="/agent/rentals/{{ rental.Rental_ID }}/assign-driver">Assign driver</a>
-      {% endif %}
-      {% if current_user.role == 'fleet_manager' %}
-      <a class="btn" href="/fleet/rentals/{{ rental.Rental_ID }}/reassign">Change car or driver</a>
-      {% endif %}
-    </div>
+    <h2>Vehicle</h2>
+    <p class="muted">Vehicle to be assigned.</p>
     {% endif %}
+    <p>
+      {% if rental.Is_Chauffeur %}
+        {% if driver %}
+        Chauffeur: {{ driver.First_Name }} {{ driver.Last_Name }}
+        {% else %}
+        Chauffeur to be assigned
+        {% endif %}
+      {% else %}
+        Self-drive
+      {% endif %}
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>Customer</h2>
+    {% if customer %}
+    <p>
+      {{ customer.First_Name }} {{ customer.Last_Name }}<br>
+      <span class="muted">{{ customer.Email }}</span>
+    </p>
+    <p>Tier: <span class="tag">{{ customer.Tier }}</span></p>
+    {% else %}
+    <p class="muted">Customer record not found.</p>
+    {% endif %}
+  </section>
+</div>
+
+<section class="card">
+  <h2>Dates and charges</h2>
+  <div class="totals">
+    <div class="total-box"><span>Rental date</span><strong>{{ rental.Rental_Date }}</strong></div>
+    <div class="total-box"><span>Due date</span><strong>{{ rental.Due_Date }}</strong></div>
+    <div class="total-box"><span>Returned</span><strong>{{ rental.Return_Date or 'Not yet' }}</strong></div>
+    <div class="total-box"><span>Total cost</span><strong>KES {{ '{:,.2f}'.format(rental.Total_Cost or 0) }}</strong></div>
+    <div class="total-box"><span>Late fee</span><strong>KES {{ '{:,.2f}'.format(rental.Late_Fee or 0) }}</strong></div>
+    <div class="total-box"><span>Amount due</span><strong>KES {{ amount_due }}</strong></div>
+  </div>
+</section>
+
+{% if rental.Return_Date %}
+<p class="muted">This rental is closed. No further action is needed.</p>
+{% else %}
+<div class="actions">
+  {% if current_user.role == 'rental_agent' %}
+  <a class="btn" href="/agent/rentals/{{ rental.Rental_ID }}/return">Process return</a>
+  <a class="btn" href="/agent/rentals/{{ rental.Rental_ID }}/assign-driver">Assign driver</a>
+  {% endif %}
+  {% if current_user.role == 'fleet_manager' %}
+  <a class="btn" href="/fleet/rentals/{{ rental.Rental_ID }}/reassign">Change car or driver</a>
+  {% endif %}
+</div>
+{% endif %}
 {% endblock %}

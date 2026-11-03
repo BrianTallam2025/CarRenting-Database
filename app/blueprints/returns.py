@@ -201,6 +201,7 @@ def rental_detail(rental_id):
         customer=customer,
         vehicle=vehicle,
         driver=driver,
+        status=_rental_status(rental),
         amount_due=_amount_due(rental),
     )
 

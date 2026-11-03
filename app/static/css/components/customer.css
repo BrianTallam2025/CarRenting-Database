@@ -61,13 +61,16 @@ label.check input { width: auto; margin: 0; }
 }
 
 /* rent form: photo beside the booking form */
-.rent-layout {
+/* rent form and confirmation: photo beside the summary */
+.rent-layout,
+.confirm-layout {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   gap: 1.5rem;
   align-items: start;
 }
-.rent-layout .car-photo { aspect-ratio: 4 / 3; }
+.rent-layout .car-photo,
+.confirm-layout .car-photo { aspect-ratio: 4 / 3; }
 
 /* dashboard: current rental strip */
 .current-rental {
@@ -91,5 +94,6 @@ label.check input { width: auto; margin: 0; }
 @media (max-width: 820px) {
   .vehicle-showcase,
   .rent-layout,
+  .confirm-layout,
   .current-rental { grid-template-columns: 1fr; }
 }

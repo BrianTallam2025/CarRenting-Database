@@ -148,6 +148,16 @@ p { margin-top: 0; text-wrap: pretty; }
 .section-head h2 { margin: 0; }
 .section-head a { font-weight: 700; }
 
+.page-top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+.page-top h1 { margin: 0; }
+
 .grid,
 .stats {
   display: grid;
@@ -454,6 +464,17 @@ fieldset.field legend { padding: 0 0.35rem; font-weight: 650; }
   margin: 2rem auto;
 }
 .auth.wide { width: min(100%, 34rem); }
+
+.auth-head { margin-bottom: 1.25rem; }
+.auth-head h1 { margin-bottom: 0.35rem; font-size: clamp(1.7rem, 4vw, 2.3rem); }
+.auth-switch { margin-top: 1rem; }
+
+code {
+  padding: 0.05rem 0.35rem;
+  border-radius: 4px;
+  background: #ece4d5;
+  font-size: 0.85em;
+}
 .auth form {
   padding: 1.6rem;
   border: 1px solid var(--line);
@@ -463,10 +484,30 @@ fieldset.field legend { padding: 0 0.35rem; font-weight: 650; }
   box-shadow: 0 2px 0 #16211c0f;
 }
 .auth form > label { margin-bottom: 1rem; }
+.auth .form-grid label { margin-bottom: 1rem; }
 .auth .btn { width: 100%; margin-top: 0.35rem; }
 
-.demo-accounts { margin-top: 1.25rem; }
+.demo-accounts {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
 .demo-accounts summary { cursor: pointer; font-weight: 650; }
+
+.demo-list {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0.7rem 0;
+  padding: 0;
+  list-style: none;
+}
+.demo-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.88rem;
+}
+.demo-list span { color: var(--muted); }
 
 /* ---------- tables ---------- */
 
@@ -534,6 +575,13 @@ tbody tr:hover { background: #f6efe2; }
   font-size: 0.88rem;
 }
 .site-footer p { margin: 0; }
+.site-footer .footer-brand {
+  margin-bottom: 0.15rem;
+  color: var(--surface);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.site-footer .muted { color: #a49c8c; font-size: 0.82rem; }
 
 /* ---------- steps ---------- */
 
